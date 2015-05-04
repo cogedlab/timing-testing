@@ -12,8 +12,11 @@
 	<body>
 	</body>
 	<script>
-		/*Welcome Message block*/
+		/*image preloading*/
+		var preimages = ['img/arugula.jpg', 'img/broccoli.jpg', 'img/brusselsprouts.jpg', 'img/lettuce.jpg', 'img/cabbage.jpg', 'img/celery.jpg', 'img/kale.jpg', 'img/cucumber.jpg', 'img/eggplant.jpg', 'img/avocado.jpg', 'img/bellpepper.jpg', 'img/pumpkin.jpg', 'img/asparagus.jpg', 'img/cauliflower.jpg', 'img/garlic.jpg', 'img/onion.jpg', 'img/carrot.jpg', 'img/potato.jpg', 'img/peas.jpg', 'img/bokchoy.jpg', 'img/squash.jpg', 'img/chard.jpg', 'img/caper.jpg', 'img/okra.jpg', 'img/radish.jpg'];
+		jsPsych.preloadImages(preimages, function(){ startExperiment(); });
 
+		/*Random number id creation*/
 		var id = Math.floor(Math.random()*1000000000);
 		
 		/*Get Amazon ID*/
@@ -27,8 +30,8 @@
 			type: "text",
 			text: "<b>Welcome to the experiment.</b>" + 
 			"<p>In this experiment, you will be shown some words and images. Please try and remember them.</p>" + 
-          "<br><p>Please do NOT refresh the page during the experiment or you will not be compensated.</p><br>" +
-          "<p>Press any key to begin. This study should take you approximately 3 minutes</p>"
+          "<br><p>Please do NOT refresh the page during the study or you will not be compensated.</p><br>" +
+          "<p>Press any key to begin. This study should take you approximately 5 minutes. You will receive a numerial code at the conclusion of the study to input into mTurk.</p>"
         };
 
 		/*Define presentation block*/
@@ -56,8 +59,7 @@
 		/*Last Questions*/
 		var final_instructions = {
 			type: 'text',
-			text: '<p>Thank you for your participation!</p><br>'+
-			'<p>Please answer the questions on the following screen. Your payment <b><u>will not</b></u> be affected by your responses. Please answer honestly and accurately.</p>'+
+			text: '<p>Please answer the questions on the following screen. Your payment <b><u>will not</b></u> be affected by the content of your responses. Please answer honestly and accurately.</p>'+
 			'<br><p>Press any key to continue</p>'
 		};
 		
@@ -80,7 +82,8 @@
 		/*Last Page*/
 		var last_page = {
 			type: 'text',
-			text: "<b>Thank you for your participation!</b><br><p>if you have any questions or concerns, email admin@cognition-learning.org."
+			text: "<b>Thank you for your participation!</b><br><p>If you have any questions or concerns, email admin@cognition-learning.org."+
+			"<br><p>Your mTurk confirmation code is: <b>" + id +"</b></p>"
 		};
 		
 		var trial = jsPsych.currentTrial();
@@ -88,12 +91,12 @@
 		
 		/*Create experiment array*/
 		var experiment = [];
+		experiment.push(mTurk_ID_block);
 		experiment.push(instructions);
 		experiment.push(test_block);
 		experiment.push(exam_block);
 		experiment.push(final_instructions);
 		experiment.push(final_questions);
-		experiment.push(mTurk_ID_block);
 		experiment.push(last_page);
 		
 		/*Save data function*/
@@ -107,13 +110,14 @@
 		}
 		
 		/*Start the experiment*/
-		jsPsych.init({
-			experiment_structure: experiment,
-			show_progress_bar: true,
-			on_finish: function(data) {
-				saveData(id + ".csv", jsPsych.data.dataAsCSV());
-			}
-		});
+		function startExperiment() {
+			jsPsych.init({
+				experiment_structure: experiment,
+				on_finish: function(data) {
+					saveData(id + ".csv", jsPsych.data.dataAsCSV());
+				}
+			});
+		}
 		
 	</script>
 </html>
