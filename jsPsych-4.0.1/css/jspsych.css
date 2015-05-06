@@ -253,3 +253,23 @@ button:hover {
 	width: 500px;
 	height: 200px;
 }
+
+/*
+ * 
+ * PLUGIN: jspsych-survey-text-table
+ * 
+ */
+
+ .jspsych-survey-text-table {
+     margin: 0.25em 0em;
+ }
+ 
+ .jspsych-survey-text-table-question {
+     margin: 2em 0em;
+ }
+ 
+.jspsych-survey-text-table-question input {
+	width: 100px;
+	height: 30px;
+	text-align: right;
+}

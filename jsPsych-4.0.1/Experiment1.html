@@ -6,6 +6,7 @@
   		<script src="jspsych.js"></script>
  		<script src="plugins/jspsych-text.js"></script>
  		<script src="plugins/jspsych-single-stim.js"></script>
+ 		<script src="plugins/jspsych-survey-text-table.js"></script>
  		<script src="plugins/jspsych-survey-text.js"></script>
 		<link href="css/jspsych.css" rel="stylesheet" type="text/css"/>
 	</head>
@@ -64,7 +65,7 @@
 		};
 		
 		var final_questions = {
-			type: 'survey-text',
+			type: 'survey-text-table',
 			questions:[
 			["Did you have any problems with this study?", "Did everything load quickly and correctly?",
 			"Were any images distorted?"],
@@ -83,7 +84,7 @@
 		var last_page = {
 			type: 'text',
 			text: "<b>Thank you for your participation!</b><br><p>If you have any questions or concerns, email admin@cognition-learning.org."+
-			"<br><p>Your mTurk confirmation code is: <b>" + id +"</b></p>"
+			"<br><p>Your mTurk confirmation code is on the following page. Press any key to continue.</p>"
 		};
 		
 		var trial = jsPsych.currentTrial();
@@ -92,10 +93,10 @@
 		/*Create experiment array*/
 		var experiment = [];
 		experiment.push(mTurk_ID_block);
-		experiment.push(instructions);
+/*		experiment.push(instructions);
 		experiment.push(test_block);
 		experiment.push(exam_block);
-		experiment.push(final_instructions);
+		experiment.push(final_instructions);*/
 		experiment.push(final_questions);
 		experiment.push(last_page);
 		
@@ -115,6 +116,8 @@
 				experiment_structure: experiment,
 				on_finish: function(data) {
 					saveData(id + ".csv", jsPsych.data.dataAsCSV());
+					jsPsych.data.displayData('csv');
+					//document.write("<center><h1>Your mTurk Code is <u>"+id+"</u></h1></center>");
 				}
 			});
 		}
