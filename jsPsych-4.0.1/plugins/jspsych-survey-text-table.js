@@ -1,10 +1,10 @@
 /**
- * jspsych-survey-text
- * a jspsych plugin for free response survey questions
+ * jspsych-survey-text-table
+ * a jspsych plugin for free response survey questions in table format
  *
- * Josh de Leeuw
- *
- * documentation: https://github.com/jodeleeuw/jsPsych/wiki/jspsych-survey-text
+ * Spencer Chu
+ * 
+ * Based on jspsych-survey-text created by Josh de Leeuw as part of jsPsych
  *
  */
 
@@ -42,7 +42,7 @@
                 }));
 
                 // add question text and input text box
-                $("#jspsych-survey-text-table-" + i).append('<table><tr><td width=600>' + trial.questions[i] + '</td><td><input type="text" name="#jspsych-survey-text-table-response-' + i + '"></input></td></tr></table>');
+                $("#jspsych-survey-text-table-" + i).append('<table><tr><td width=600>' + trial.questions[i] + '</td><td class="text-response"><input type="text" name="#jspsych-survey-text-table-response-' + i + '"></input></td></tr>');
                
             }
 
@@ -59,7 +59,7 @@
 
                 // create object to hold responses
                 var question_data = {};
-                $("div.jspsych-survey-text-table-question").each(function(index) {
+                $("td.text-response").each(function(index) {
                     var id = "Q" + index;
                     var val = $(this).children('input').val();
                     var obje = {};
