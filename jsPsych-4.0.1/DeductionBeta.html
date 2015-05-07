@@ -1,0 +1,210 @@
+<!doctype html>
+<html>
+	<head>
+  		<title>My experiment</title>
+  		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  		<script src="jspsych.js"></script>
+ 		<script src="plugins/jspsych-text.js"></script>
+ 		<script src="plugins/jspsych-single-stim.js"></script>
+ 		<script src="plugins/jspsych-survey-text-table.js"></script>
+ 		<script src="plugins/jspsych-survey-text.js"></script>
+		<link href="css/jspsych.css" rel="stylesheet" type="text/css"/>
+	</head>
+	<body>
+	</body>
+	<script>
+		/*image preloading*/
+		var preimages = ['img/arugula.jpg', 'img/broccoli.jpg', 'img/brusselsprouts.jpg', 'img/lettuce.jpg', 'img/cabbage.jpg', 'img/celery.jpg', 'img/kale.jpg', 'img/cucumber.jpg', 'img/eggplant.jpg', 'img/avocado.jpg', 'img/bellpepper.jpg', 'img/pumpkin.jpg', 'img/asparagus.jpg', 'img/cauliflower.jpg', 'img/garlic.jpg', 'img/onion.jpg', 'img/carrot.jpg', 'img/potato.jpg', 'img/peas.jpg', 'img/bokchoy.jpg', 'img/squash.jpg', 'img/chard.jpg', 'img/caper.jpg', 'img/okra.jpg', 'img/radish.jpg'];
+		jsPsych.preloadImages(preimages, function(){ startExperiment(); });
+
+		/*Random number id creation and condition assignment*/
+		var id_num = Math.floor(Math.random()*100000);
+		var cond_num = Math.round(Math.random());
+		if (cond_num == 1){
+			cond = "rstd";
+		} else {
+			cond = "retv";
+		};
+		
+		id = id_num + "_" + cond;
+		
+		/*Get Amazon ID*/
+		var mTurk_ID_block = {
+			type: 'survey-text',
+			questions: [["What is your Amazon mTurk user ID?"]]
+		};
+		
+		/*Instructions block*/
+		var instructions = {
+			type: "text",
+			text: "<b>Welcome to our study.</b>" + 
+			"<p>In this study, you will be shown some sentences. Please try and remember them and how they relate to one another.</p>" + 
+          "<br><p>Please do <b>NOT</b> <u>refresh the page</u> or <u>tab away</u> during the study or you <u>will not</u> be compensated.</p><br>" +
+          "<p>Press any key to begin. This study should take you approximately 15 minutes. You will receive a numerial code at the conclusion of the study to input into mTurk.</p>"
+        };
+
+		/*
+		 * The first presentation of the scenarios
+		 */
+		/*Scenarios Stimuli*/
+		var scenario1_stimuli = ['Students commute from off-campus housing to campus by 3 routes.<br>'+
+		'On Ash, students may walk, bike, or drive.<br>'+
+		'On Birch, only walking is allowed.<br>'+
+		'On Canyon, only biking or walking is allowed.<br>'+
+		'If it is raining, students do not bike.<br>'+
+		'If it is hot, students drive to campus or take Birch.<br>'+
+		'Freshmen are not allowed to have cars.<br>'];
+		
+		var scenario2_stimuli = ['Scenario2'];
+		
+		var scenario3_stimuli = ['Secnario3'];
+		
+		var scenario4_stimuli = ['Scenario4'];
+		
+		/*Concatenate All scenarios*/
+		var all_scenarios = [scenario1_stimuli/*, scenario2_stimuli, scenario3_stimuli, scenario4_stimuli*/];
+		
+		/*Randomize the scenarios*/
+		var random_scenarios = jsPsych.randomization.repeat(all_scenarios, 1);
+
+		/*Scenarios Variable*/
+		var scenario_block = {
+			type: "single-stim",
+			stimuli: random_scenarios,
+			timing_response: 1000,
+			is_html: true,
+			continue_after_response: false
+		};
+		
+		/*
+		 * Restudy/Retrieval Portion
+		 */
+		
+		/*Scenario 1 Retv*/
+		var scenario1_retv_stim = ['Students commute from off-campus housing to campus by any of _____ routes.',
+		'On Ash, students may _____, _____, or _____.',
+		'On Birch, only _____ is allowed.',
+		'If it is raining, students do not _____.',
+		'If it is hot, students _____ to campus or take _____.',
+		'Freshmen are not allowed to have _____.'];
+		
+		/*Scenario 1 Question Randomization*/
+		var scenario1_retv_rand = jsPsych.randomization.repeat(scenario1_retv_stim, 1);
+		
+		/*Scenario 2 Retv*/
+		/*Scenario 3 Retv*/
+		/*Scenario 4 Retv*/
+		
+		/*All Scenarios randomization*/
+		var all_scenarios_retv = [scenario1_retv_rand/*, scenario2_retv_rand, scenario3_retv_rand, scenario4_retv _rand*/];
+		
+		//bvar all_scenarios_retv_rand = jsPsych.randomization.repeat(all_scenarios_retv);
+		
+		/*All Scenarios Retrival Block*/
+		var retv_block = {
+			type: 'survey-text-table',
+			questions: [scenario1_retv_rand],
+		};
+		
+		
+		/*
+		 * Final Test Portion
+		 */
+		
+		/*Scenario 1 Questions*/
+		var scenario1_qs = [['On which route(s) can students BIKE to campus?<hr><br>a. Ash only<br>b. Ash or Birch<br>c. Birch or Canyon<br>d. Ash or Canyon<br>e. Ash or Birch or Canyon'],
+			['On which route(s) can students DRIVE to campus?<hr><br>a. Ash only<br>b. Ash or Birch<br>c. Birch or Canyon<br>d. Ash or Canyon<br>e. Ash or Birch or Canyon'],
+			['Which route(s) do students use when it is HOT?<hr><br>a. Ash only<br>b. Ash or Birch<br>c. Birch or Canyon<br>d. Ash or Canyon<br>e. Ash or Birch or Canyon'],
+			["How might students commute to campus via BIRCH on a RAINY day? (Correct answer should include all possibilites.)<hr><br>a. walk <br>b. bike<br>c. drive<br>d. walk or drive<br>e. none-student don't use Birch on RAINY day"],
+			['Which form(s) of transportation are allowed on all 3 routes?<hr><br>a. walking<br>b. biking<br>c. driving<br>d. walking or driving<br>e. walking and biking'],
+			['How might students commute to campus on a HOT day? (Correct answer should include all possibilites.)<hr><br>a. walk <br>b. bike<br>c. drive<br>d. walk or drive<br>e. bike or drive'],
+			['How might FRESHMEN students commute to campus on a HOT day? (Correct answer should include all possibilites.)<hr><br>a. walk <br>b. bike<br>c. drive<br>d. walk or drive<br>e. bike or drive'],
+			['How might students commute to campus via CANYON on a HOT day? (Correct answer should include all possibilites.)<hr><br>a. bike<br>b. drive<br>c. bike or drive<br>d. walk or drive<br>e. none: students don’t use Canyon on hot days']];
+		
+		var scenario1_questions = {
+			type: 'single-stim',
+			stimuli: scenario1_qs,
+			is_html: true,
+			choices: ['a','b','c','d','e'],
+			prompt: "<br><hr>Please key in your response."
+		};
+		
+		/*
+		 * 
+		 ***OLDER STUFF BELOW*** 
+		 * 
+		 */
+		
+		/*Last Questions*/
+		var final_instructions = {
+			type: 'text',
+			text: '<p>Please answer the questions on the following screen. Your payment <b><u>will not</b></u> be affected by the content of your responses. Please answer honestly and accurately.</p>'+
+			'<br><p>Press any key to continue</p>'
+		};
+		
+		var final_questions = {
+			type: 'survey-text-table',
+			questions:[
+			["Did you have any problems with this study?", "Did everything load quickly and correctly?",
+			"Were any images distorted?"],
+			["What type of device were you using (i.e. MacBook Pro, HP Probook, Lenovo, iPhone, iPad, etc.)",
+			"What Browser were you using? (i.e. Chrome, Firefox, Internet Explorer, Safari)",
+			"What Operating System do you use? (i.e. Windows 7, OS-X, Linux, etc.)",
+			"What kind of internet were you using? (Hardlline, Wifi, 4G, etc.)",],
+			["Where were you doing this study? (i.e. at home, at a cafe, library, etc.)",
+			"Was there any background noise while doing the experiment?",
+			"Did you switch to any other tabs during the experiment?",
+			"Were you paying attention?"]
+			]
+		};
+		
+		/*Last Page*/
+		var last_page = {
+			type: 'text',
+			text: "<b>Thank you for your participation!</b><br><p>If you have any questions or concerns, email admin@cognition-learning.org."+
+			"<br><p>Your mTurk confirmation code is on the following page. Press any key to continue.</p>"
+		};
+		
+		var trial = jsPsych.currentTrial();
+		console.log(trial.type);
+		
+		/*Create experiment array*/
+		var experiment = [];
+		experiment.push(mTurk_ID_block);
+		experiment.push(instructions);
+		experiment.push(scenario_block);
+		if (cond_num == 1) {
+			experiment.push(scenario_block);
+		} else {
+			experiment.push(retv_block);
+		};
+		experiment.push(retv_block);
+		experiment.push(scenario1_questions);
+		experiment.push(final_instructions);
+		experiment.push(final_questions);
+		experiment.push(last_page);
+		
+		/*Save data function*/
+		function saveData(filename, filedata){
+			$.ajax({
+				type:'post',
+				cache: false,
+				url: 'save_data.php',
+				data: {filename: filename, filedata: filedata}
+			});
+		}
+		
+		/*Start the experiment*/
+		function startExperiment() {
+			jsPsych.init({
+				experiment_structure: experiment,
+				on_finish: function(data) {
+					saveData(id + ".csv", jsPsych.data.dataAsCSV());
+					jsPsych.data.displayData('csv');
+					//document.write("<center><h1>Your mTurk Code is <u>"+id+"</u></h1></center>");
+				}
+			});
+		}
+		
+	</script>
+</html>
