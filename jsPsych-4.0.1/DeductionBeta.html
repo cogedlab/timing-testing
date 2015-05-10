@@ -98,7 +98,7 @@
 		/*All Scenarios randomization*/
 		var all_scenarios_retv = [scenario1_retv_rand/*, scenario2_retv_rand, scenario3_retv_rand, scenario4_retv _rand*/];
 		
-		//bvar all_scenarios_retv_rand = jsPsych.randomization.repeat(all_scenarios_retv);
+		//var all_scenarios_retv_rand = jsPsych.randomization.repeat(all_scenarios_retv);
 		
 		/*All Scenarios Retrival Block*/
 		var retv_block = {
@@ -119,7 +119,7 @@
 			['Which form(s) of transportation are allowed on all 3 routes?<hr><br>a. walking<br>b. biking<br>c. driving<br>d. walking or driving<br>e. walking and biking'],
 			['How might students commute to campus on a HOT day? (Correct answer should include all possibilites.)<hr><br>a. walk <br>b. bike<br>c. drive<br>d. walk or drive<br>e. bike or drive'],
 			['How might FRESHMEN students commute to campus on a HOT day? (Correct answer should include all possibilites.)<hr><br>a. walk <br>b. bike<br>c. drive<br>d. walk or drive<br>e. bike or drive'],
-			['How might students commute to campus via CANYON on a HOT day? (Correct answer should include all possibilites.)<hr><br>a. bike<br>b. drive<br>c. bike or drive<br>d. walk or drive<br>e. none: students don’t use Canyon on hot days']];
+			["How might students commute to campus via CANYON on a HOT day? (Correct answer should include all possibilites.)<hr><br>a. bike<br>b. drive<br>c. bike or drive<br>d. walk or drive<br>e. none: students don't use Canyon on hot days"]];
 		
 		var scenario1_questions = {
 			type: 'single-stim',
@@ -178,10 +178,9 @@
 		} else {
 			experiment.push(retv_block);
 		};
-		experiment.push(retv_block);
 		experiment.push(scenario1_questions);
-		experiment.push(final_instructions);
-		experiment.push(final_questions);
+//		experiment.push(final_instructions);
+//		experiment.push(final_questions);
 		experiment.push(last_page);
 		
 		/*Save data function*/
