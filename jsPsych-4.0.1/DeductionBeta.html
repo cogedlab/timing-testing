@@ -8,6 +8,7 @@
  		<script src="plugins/jspsych-single-stim.js"></script>
  		<script src="plugins/jspsych-survey-text-table.js"></script>
  		<script src="plugins/jspsych-survey-text.js"></script>
+ 		<script src="plugins/jspsych-call-function.js"></script>
 		<link href="css/jspsych.css" rel="stylesheet" type="text/css"/>
 	</head>
 	<body>
@@ -31,7 +32,7 @@
 		/*Get Amazon ID*/
 		var mTurk_ID_block = {
 			type: 'survey-text',
-			questions: [["What is your Amazon mTurk user ID?"]]
+			questions: [["What is your Amazon mTurk user ID? "]]
 		};
 		
 		/*Instructions block*/
@@ -46,66 +47,97 @@
 		/*
 		 * The first presentation of the scenarios
 		 */
+		
 		/*Scenarios Stimuli*/
-		var scenario1_stimuli = ['Students commute from off-campus housing to campus by 3 routes.<br>'+
-		'On Ash, students may walk, bike, or drive.<br>'+
-		'On Birch, only walking is allowed.<br>'+
-		'On Canyon, only biking or walking is allowed.<br>'+
-		'If it is raining, students do not bike.<br>'+
-		'If it is hot, students drive to campus or take Birch.<br>'+
-		'Freshmen are not allowed to have cars.<br>'];
+		var s1_stim = ['Students commute from off-campus housing to campus by 3 routes.<br><br>',
+		'On Ash, students may walk, bike, or drive.<br><br>',
+		'On Birch, only walking is allowed.<br><br>',
+		'On Canyon, only biking or walking is allowed.<br><br>',
+		'If it is raining, students do not bike.<br><br>',
+		'If it is hot, students drive to campus or take Birch.<br><br>',
+		'Freshmen are not allowed to have cars.<br><br>'];
 		
-		var scenario2_stimuli = ['Scenario2'];
-		
-		var scenario3_stimuli = ['Secnario3'];
-		
-		var scenario4_stimuli = ['Scenario4'];
-		
-		/*Concatenate All scenarios*/
-		var all_scenarios = [scenario1_stimuli/*, scenario2_stimuli, scenario3_stimuli, scenario4_stimuli*/];
-		
-		/*Randomize the scenarios*/
-		var random_scenarios = jsPsych.randomization.repeat(all_scenarios, 1);
-
-		/*Scenarios Variable*/
-		var scenario_block = {
-			type: "single-stim",
-			stimuli: random_scenarios,
-			timing_response: 1000,
-			is_html: true,
-			continue_after_response: false
+		/*Randomize the premises*/
+		function randPremises(stimuli){
+			//Randomize
+			var stim_proc = jsPsych.randomization.repeat(stimuli,1);
+			var stim_out = [];
+			//Concatenate
+			for (i=0; i<stim_proc.length; i++) {
+				stim_out += stim_proc[i];
+			}
+			return stim_out;
 		};
+		
+		/*Make a scenario block*/
+		function makeScen(premises) {
+			var premises_block = {
+				type: "single-stim",
+				stimuli: function(){return randPremises(premises);},
+				is_html: true,
+			};
+			return premises_block;
+		}
+		
 		
 		/*
 		 * Restudy/Retrieval Portion
 		 */
 		
 		/*Scenario 1 Retv*/
-		var scenario1_retv_stim = ['Students commute from off-campus housing to campus by any of _____ routes.',
+		var s1_retv_stim = ['Students commute from off-campus housing to campus by any of _____ routes.',
 		'On Ash, students may _____, _____, or _____.',
 		'On Birch, only _____ is allowed.',
+		'On Canyon, only _____ or _____ is allowed',
 		'If it is raining, students do not _____.',
 		'If it is hot, students _____ to campus or take _____.',
 		'Freshmen are not allowed to have _____.'];
 		
+		var s1_retv_back = ['Students commute from off-campus housing to campus by any of <u>_3_</u> routes.',
+		'On Ash, students may <u>walk</u>, <u>bike</u>, or <u>drive</u>.',
+		'On Birch, only <u>walking</u> is allowed.',
+		'On Canyon, only <u>biking</u> or <u>walking</u> is allowed.',
+		'If it is raining, students do not <u>bike</u>.',
+		'If it is hot, students <u>drive</u> to campus or take <u>Birch</u>.',
+		'Freshmen are not allowed to have <u>cars</u>.',];
+		
 		/*Scenario 1 Question Randomization*/
-		var scenario1_retv_rand = jsPsych.randomization.repeat(scenario1_retv_stim, 1);
 		
-		/*Scenario 2 Retv*/
-		/*Scenario 3 Retv*/
-		/*Scenario 4 Retv*/
+		function randRetvIndex(retv_stim) {
+			var nums = [];
+			for (i=0;i<retv_stim.length;i++) {
+				nums[i] = i;
+			}
+			nums = jsPsych.randomization.repeat(nums,1);
+			return nums;
+		}
 		
-		/*All Scenarios randomization*/
-		var all_scenarios_retv = [scenario1_retv_rand/*, scenario2_retv_rand, scenario3_retv_rand, scenario4_retv _rand*/];
+		function randRetv(nums, retv_stim){
+			var stim = [];
+			for (i=0;i<nums.length;i++){
+				stim[i]=retv_stim[nums[i]];
+			}
+			return stim;
+		}
 		
-		//var all_scenarios_retv_rand = jsPsych.randomization.repeat(all_scenarios_retv);
+		var nums_real;
 		
-		/*All Scenarios Retrival Block*/
-		var retv_block = {
-			type: 'survey-text-table',
-			questions: [scenario1_retv_rand],
-		};
-		
+		function makeRetv(retv, back) {
+			/*Make Retrival Block*/
+			var retv_block = {
+				type: 'survey-text-table',
+				questions: [function() {
+					nums_real = randRetvIndex(retv);
+					return randRetv(nums_real, retv);}]
+			};
+			var back_block = {
+				type: 'survey-text-table',
+				questions: [function() {
+					return randRetv(nums_real, back);}]
+			};
+			out = [retv_block, back_block];
+			return out;
+		}
 		
 		/*
 		 * Final Test Portion
@@ -126,37 +158,9 @@
 			stimuli: scenario1_qs,
 			is_html: true,
 			choices: ['a','b','c','d','e'],
-			prompt: "<br><hr>Please key in your response."
+			prompt: "<br><hr>Please key in your response (<b>a, b, c, d, e</b>)."
 		};
 		
-		/*
-		 * 
-		 ***OLDER STUFF BELOW*** 
-		 * 
-		 */
-		
-		/*Last Questions*/
-		var final_instructions = {
-			type: 'text',
-			text: '<p>Please answer the questions on the following screen. Your payment <b><u>will not</b></u> be affected by the content of your responses. Please answer honestly and accurately.</p>'+
-			'<br><p>Press any key to continue</p>'
-		};
-		
-		var final_questions = {
-			type: 'survey-text-table',
-			questions:[
-			["Did you have any problems with this study?", "Did everything load quickly and correctly?",
-			"Were any images distorted?"],
-			["What type of device were you using (i.e. MacBook Pro, HP Probook, Lenovo, iPhone, iPad, etc.)",
-			"What Browser were you using? (i.e. Chrome, Firefox, Internet Explorer, Safari)",
-			"What Operating System do you use? (i.e. Windows 7, OS-X, Linux, etc.)",
-			"What kind of internet were you using? (Hardlline, Wifi, 4G, etc.)",],
-			["Where were you doing this study? (i.e. at home, at a cafe, library, etc.)",
-			"Was there any background noise while doing the experiment?",
-			"Did you switch to any other tabs during the experiment?",
-			"Were you paying attention?"]
-			]
-		};
 		
 		/*Last Page*/
 		var last_page = {
@@ -165,6 +169,34 @@
 			"<br><p>Your mTurk confirmation code is on the following page. Press any key to continue.</p>"
 		};
 		
+		var startTime;
+		var start_review_time = {
+			type: 'call-function',
+			func: function(){
+				startTime = (new Date()).getTime();
+			}
+		};
+		
+		if (cond_num == 1){
+			loopTimeline = [makeScen(s1_stim)];
+		} else {
+			loopTimeline = makeRetv(s1_retv_stim, s1_retv_back);
+		}
+		
+		var review_loop = {
+			chunk_type: 'while',
+			timeline: loopTimeline,
+			continue_function: function(){
+				var currentTime = (new Date()).getTime();
+				if(currentTime-startTime > 30 * 1000){ //30s * 1000ms
+					return false;
+				} else {
+					return true;
+				}
+			}
+		};
+		
+		
 		var trial = jsPsych.currentTrial();
 		console.log(trial.type);
 		
@@ -172,15 +204,10 @@
 		var experiment = [];
 		experiment.push(mTurk_ID_block);
 		experiment.push(instructions);
-		experiment.push(scenario_block);
-		if (cond_num == 1) {
-			experiment.push(scenario_block);
-		} else {
-			experiment.push(retv_block);
-		};
+		experiment.push(makeScen(s1_stim));
+		experiment.push(start_review_time);
+		experiment.push(review_loop);
 		experiment.push(scenario1_questions);
-//		experiment.push(final_instructions);
-//		experiment.push(final_questions);
 		experiment.push(last_page);
 		
 		/*Save data function*/
