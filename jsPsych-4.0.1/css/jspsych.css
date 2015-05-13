@@ -21,8 +21,21 @@ html {
 }
 
 body {
-	margin: 0;
+	margin: 0px 0px 50px 0px;
 	padding: 0;
+}
+
+.body-consent {
+	margin: 10px 150px 100px 150px;
+	padding: 5;
+}
+
+.underline {
+	text-decoration: underline;
+}
+
+h4 {
+	text-decoration: underline;
 }
 
 p {
@@ -43,6 +56,10 @@ p {
 
 .very-large {
     font-size: 150%;
+}
+
+.italic {
+	font-style: italic;
 }
 
 /*
@@ -250,13 +267,14 @@ button:hover {
  }
 
 .jspsych-survey-text-question input {
-	width: 500px;
-	height: 200px;
+	width: 200px;
+	height: 50px;
 }
 
 /*
  * 
  * PLUGIN: jspsych-survey-text-table
+ * PLUGIN: jspsych-survey-text-table-feedback
  * 
  */
 
