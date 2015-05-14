@@ -48,7 +48,7 @@
 			questions: [["What is your Amazon mTurk user ID?"]]
 		};
 		/*Save Amazon ID*/
-		var periodic_save = {
+		var save_mTurk_ID = {
 			type: 'call-function',
 			func: function(data){
 				saveData(id + ".csv", jsPsych.data.dataAsCSV());
@@ -233,7 +233,7 @@
 			timeline: loopTimeline,
 			continue_function: function(){
 				var currentTime = (new Date()).getTime();
-				if(currentTime-startTime > 300 * 1000){ //300s * 1000ms
+				if(currentTime-startTime > 15 * 1000){ //30s * 1000ms
 					return false;
 				} else {
 					return true;
@@ -305,7 +305,7 @@
 		var experiment = [];
 		experiment.push(introduction);
 		experiment.push(mTurk_ID_block);
-		experiment.push(periodic_save);
+		experiment.push(save_mTurk_ID);
 		experiment.push(consent_block);
 		experiment.push(demographics_block);
 		experiment.push(study_inst);
@@ -334,7 +334,8 @@
 			experiment_structure: experiment,
 			on_finish: function(data) {
 				saveData(id + ".csv", jsPsych.data.dataAsCSV());
-				document.write("<center><h1>Your mTurk Code is <u>"+id+"</u></h1></center>");
+				jsPsych.data.displayData('json');
+				//document.write("<center><h1>Your mTurk Code is <u>"+id+"</u></h1></center>");
 			}
 		});
 		
