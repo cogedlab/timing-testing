@@ -106,7 +106,7 @@
 			text: "<p>In this study, you will be shown some sentences. Please try and learn them. You will be tested on your knowledge of them later. You will be shown 4 independent groups of sentences.</p><br>" + 
 			"<p>Please don't write down any of the information. Your test performance will not affect your compensation.</p>"+
          	"<br><p>Please do <b>NOT</b> <u>refresh the page</u> or <u>tab away</u> during the study or you <u>will not</u> be compensated.</p><br>" +
-          	"<p>Press any key to begin. This study should take you approximately 40 minutes. You will receive an alphanumeric code at the conclusion of the study to input into mTurk.</p>"
+          	"<p>This study should take you approximately 40 minutes. Please do the study in one sitting (i.e. go all the way through without stopping). You will receive an alphanumeric code at the conclusion of the study to input into mTurk. Press any key to begin.</p>"
         };
         
         var between_inst = {
@@ -478,6 +478,7 @@
 			['How might students commute to campus on a HOT day? (Correct answer should include all possibilites.)<hr><br>a. walk <br>b. bike<br>c. drive<br>d. walk or drive<br>e. bike or drive'],
 			['How might FRESHMEN students commute to campus on a HOT day? (Correct answer should include all possibilites.)<hr><br>a. walk <br>b. bike<br>c. drive<br>d. walk or drive<br>e. bike or drive'],
 			["How might students commute to campus via CANYON on a HOT day? (Correct answer should include all possibilites.)<hr><br>a. bike<br>b. drive<br>c. bike or drive<br>d. walk or drive<br>e. none: students don't use Canyon on hot days"]];
+		scenario1_qs = jsPsych.randomization.repeat(scenario1_qs,1);
 		/*Scenario 1 Questions Block*/
 		var scenario1_questions = {
 			type: 'single-stim',
@@ -496,6 +497,7 @@
 			['If Preps and Loners are hosting a party, which of the following is possible:<hr><br>a. There are 9 people at the party and Goths are present<br>b. There are 11 people at the party and Goths are present<br>c. There are 9 people at the party and Goths are not present<br>d. There are 11 people at the party and Goths are not present'],
 			['If there are 7 people wearing purple shirts at a party, what is the maximum possible number of Preps who can be present?<hr><br>a. 0<br>b. 2<br>c. 3<br>d. There is no maxium '],
 			['There are 3 Nerds present at a party. How many Preps are there?<hr><br>a. 0<br>b. fewer than 3<br>c. fewer than 7<br>d. more than 3']];
+		scenario2_qs = jsPsych.randomization.repeat(scenario2_qs,1);
 		/*Scenario 2 Questions Block*/
 		var scenario2_questions = {
 			type: 'single-stim',
@@ -514,6 +516,7 @@
 			['If Bebe is 4 feet tall, which of the following is true?<hr><br>a. She must be a Goopie<br>b. She must be a Zipper<br>c. She must be a Goopie or Zipper'],
 			['If Lingo earns $10,000 per year and paid $4,000 in taxes, to what tribe does he belong?<hr><br>a. Zippers<br>b. Groopies<br>c. Dinkos'],
 			['If a Dinko pays $5000 in taxes, what was his earned income that year?<hr><br>a. 30000<br>b. 40000<br>c. 50000']];
+		scenario3_qs = jsPsych.randomization.repeat(scenario3_qs,1);
 		/*Scenario 3 Questions Block*/
 		var scenario3_questions = {
 			type: 'single-stim',
@@ -532,6 +535,7 @@
 			['If you want to buy a 6-cylinder Caliente TODAY from your local dealership, what color might be available?<hr><br>a. Black only<br>b. Sliver only<br>c. Blue only <br>d. Black or silver<br>e. Black or Silver or Blue'],
 			["How many of the dealership's Calientes are blue?<hr><br>a. 0<br>b. 1<br>c. 2<br>d. 3<br>e. 4"],
 			['What is the smallest possible number of black Calientes on the lot?<hr><br>a. 0<br>b. 1<br>c. 2<br>d. 3<br>e. 4']];
+		scenario4_qs = jsPsych.randomization.repeat(scenario4_qs,1);
 		/*Scenario 4 Questions Block*/
 		var scenario4_questions = {
 			type: 'single-stim',
@@ -582,12 +586,12 @@
 		
 		/*s1 Chunk*/
 		s1_timeline = [];
-//		s1_timeline.push(makeScen(s1_stim));
-//		s1_timeline.push(review_inst_s1);
+		s1_timeline.push(makeScen(s1_stim));
+		s1_timeline.push(review_inst_s1);
 		s1_timeline.push(start_review_time);
 		s1_timeline.push(s1_review_loop);
-//		s1_timeline.push(test_inst);
-//		s1_timeline.push(scenario1_questions);
+		s1_timeline.push(test_inst);
+		s1_timeline.push(scenario1_questions);
 		var s1_chunk = {
 			chunk_type: 'linear',
 			timeline: s1_timeline
@@ -595,12 +599,12 @@
 		
 		/*s2 chunk*/
 		s2_timeline = [];
-//		s2_timeline.push(makeScen(s2_stim));
-//		s2_timeline.push(review_inst_s1);
+		s2_timeline.push(makeScen(s2_stim));
+		s2_timeline.push(review_inst_s1);
 		s2_timeline.push(start_review_time);
 		s2_timeline.push(s2_review_loop);
-//		s2_timeline.push(test_inst);
-//		s2_timeline.push(scenario2_questions);
+		s2_timeline.push(test_inst);
+		s2_timeline.push(scenario2_questions);
 		var s2_chunk = {
 			chunk_type: 'linear',
 			timeline: s2_timeline
@@ -608,12 +612,12 @@
 		
 		/*s3 chunk*/
 		s3_timeline = [];
-//		s3_timeline.push(makeScen(s3_stim));
-//		s3_timeline.push(review_inst_s3);
+		s3_timeline.push(makeScen(s3_stim));
+		s3_timeline.push(review_inst_s3);
 		s3_timeline.push(start_review_time);
 		s3_timeline.push(s3_review_loop);
-//		s3_timeline.push(test_inst);
-//		s3_timeline.push(scenario3_questions);
+		s3_timeline.push(test_inst);
+		s3_timeline.push(scenario3_questions);
 		var s3_chunk = {
 			chunk_type: 'linear',
 			timeline: s3_timeline
@@ -621,12 +625,12 @@
 		
 		/*s4 chunk*/
 		s4_timeline = [];
-//		s4_timeline.push(makeScen(s4_stim));
-//		s4_timeline.push(review_inst_s4);
+		s4_timeline.push(makeScen(s4_stim));
+		s4_timeline.push(review_inst_s4);
 		s4_timeline.push(start_review_time);
 		s4_timeline.push(s4_review_loop);
-//		s4_timeline.push(test_inst);
-//		s4_timeline.push(scenario4_questions);
+		s4_timeline.push(test_inst);
+		s4_timeline.push(scenario4_questions);
 		var s4_chunk = {
 			chunk_type: 'linear',
 			timeline: s4_timeline
@@ -645,7 +649,7 @@
 		var experiment = [];
 			/*General Introductory Materials*/
 		experiment.push(introduction);
-/*		experiment.push(mTurk_ID_block);
+		experiment.push(mTurk_ID_block);
 		experiment.push(periodic_save);
 		experiment.push(consent_block);
 		experiment.push(demographics_block);
@@ -667,7 +671,7 @@
 		experiment.push(chunks[3]);
 		experiment.push(periodic_save);
 			/*Final Questions*/
-/*		experiment.push(final_qs_inst);
+		experiment.push(final_qs_inst);
 		experiment.push(final_questions);
 		experiment.push(periodic_save);
 		experiment.push(last_page);
