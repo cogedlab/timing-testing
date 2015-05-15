@@ -42,7 +42,7 @@
                 }));
 
                 // add question text and input text box
-                $("#jspsych-survey-text-table-" + i).append('<table><tr><td width=600>' + trial.questions[i] + '</td><td class="text-response"><input type="text" name="#jspsych-survey-text-table-response-' + i + '"></input></td></tr>');
+                $("#jspsych-survey-text-table-" + i).append('<table><tr><td class="stimulus" width=600>' + trial.questions[i] + '</td><td class="text-response"><input type="text" name="#jspsych-survey-text-table-response-' + i + '"></input></td></tr>');
                
             }
 
@@ -66,11 +66,13 @@
                     obje[id] = val;
                     $.extend(question_data, obje);
                 });
+               
 
                 // save data
                 jsPsych.data.write($.extend({}, {
                     "rt": response_time,
-                    "responses": JSON.stringify(question_data)
+                    "responses": JSON.stringify(question_data),
+                    "stimulus": trial.questions
                 }, trial.data));
 
                 display_element.html('');

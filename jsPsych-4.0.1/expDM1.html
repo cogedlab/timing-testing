@@ -11,6 +11,7 @@
  		<script src="plugins/jspsych-call-function.js"></script>
  		<script src="plugins/jspsych-survey-text-table-feedback.js"></script>
  		<script src="plugins/jspsych-html.js"></script>
+ 		<script src="plugins/jspsych-save-info.js"></script>
 		<link href="css/jspsych.css" rel="stylesheet" type="text/css"/>
 	</head>
 	<body>
@@ -40,6 +41,13 @@
 		var id = id_letters + "_" + id_num + "_" + order + "_" + cb; //Final ID Number
 		var code = id_letters + "_" + id_num;
 		
+		var conditions = {
+			type: "save-info",
+			id: code,
+			order: order,
+			cb: cb
+		};
+		
 		var review_secs = 5; //Should be 5 minutes
 		var intro_text;
 		if (review_secs==300) {
@@ -51,13 +59,14 @@
 		var introduction = {
 			type: 'text',
 			text: intro_text,
-			};
+		};
 		
 		/*Get Amazon ID*/
 		var mTurk_ID_block = {
 			type: 'survey-text',
 			questions: [["What is your Amazon mTurk user ID?"]]
 		};
+		
 		/*Save Amazon ID*/
 		var periodic_save = {
 			type: 'call-function',
@@ -101,13 +110,7 @@
 		};
 		
 		/*Instructions block*/
-		var study_inst = {
-			type: "text",
-			text: "<p>In this study, you will be shown some sentences. Please try and learn them. You will be tested on your knowledge of them later. You will be shown 4 independent groups of sentences.</p><br>" + 
-			"<p>Please don't write down any of the information. Your test performance will not affect your compensation.</p>"+
-         	"<br><p>Please do <b>NOT</b> <u>refresh the page</u> or <u>tab away</u> during the study or you <u>will not</u> be compensated.</p><br>" +
-          	"<p>This study should take you approximately 40 minutes. Please do the study in one sitting (i.e. go all the way through without stopping). You will receive an alphanumeric code at the conclusion of the study to input into mTurk. Press any key to begin.</p>"
-        };
+
         
         var between_inst = {
         	type: "text",
@@ -586,12 +589,12 @@
 		
 		/*s1 Chunk*/
 		s1_timeline = [];
-		s1_timeline.push(makeScen(s1_stim));
-		s1_timeline.push(review_inst_s1);
+//		s1_timeline.push(makeScen(s1_stim));
+//		s1_timeline.push(review_inst_s1);
 		s1_timeline.push(start_review_time);
 		s1_timeline.push(s1_review_loop);
-		s1_timeline.push(test_inst);
-		s1_timeline.push(scenario1_questions);
+//		s1_timeline.push(test_inst);
+//		s1_timeline.push(scenario1_questions);
 		var s1_chunk = {
 			chunk_type: 'linear',
 			timeline: s1_timeline
@@ -599,12 +602,13 @@
 		
 		/*s2 chunk*/
 		s2_timeline = [];
-		s2_timeline.push(makeScen(s2_stim));
+/*		s2_timeline.push(makeScen(s2_stim));
 		s2_timeline.push(review_inst_s1);
 		s2_timeline.push(start_review_time);
 		s2_timeline.push(s2_review_loop);
 		s2_timeline.push(test_inst);
 		s2_timeline.push(scenario2_questions);
+		/*s2 Chunk*/
 		var s2_chunk = {
 			chunk_type: 'linear',
 			timeline: s2_timeline
@@ -612,12 +616,13 @@
 		
 		/*s3 chunk*/
 		s3_timeline = [];
-		s3_timeline.push(makeScen(s3_stim));
+/*		s3_timeline.push(makeScen(s3_stim));
 		s3_timeline.push(review_inst_s3);
 		s3_timeline.push(start_review_time);
 		s3_timeline.push(s3_review_loop);
 		s3_timeline.push(test_inst);
 		s3_timeline.push(scenario3_questions);
+		/*s3 Chunk*/
 		var s3_chunk = {
 			chunk_type: 'linear',
 			timeline: s3_timeline
@@ -625,12 +630,13 @@
 		
 		/*s4 chunk*/
 		s4_timeline = [];
-		s4_timeline.push(makeScen(s4_stim));
+/*		s4_timeline.push(makeScen(s4_stim));
 		s4_timeline.push(review_inst_s4);
 		s4_timeline.push(start_review_time);
 		s4_timeline.push(s4_review_loop);
 		s4_timeline.push(test_inst);
 		s4_timeline.push(scenario4_questions);
+		/*s4 Chunk*/
 		var s4_chunk = {
 			chunk_type: 'linear',
 			timeline: s4_timeline
@@ -649,29 +655,39 @@
 		var experiment = [];
 			/*General Introductory Materials*/
 		experiment.push(introduction);
+		experiment.push(conditions);
 		experiment.push(mTurk_ID_block);
-		experiment.push(periodic_save);
+		var mID = jsPsych.data.getLastTrialData();
+/*		experiment.push(periodic_save);
 		experiment.push(consent_block);
 		experiment.push(demographics_block);
 		experiment.push(periodic_save);
+*/		var study_inst = {
+			type: "text",
+			text: "<p>In this study, you will be shown some sentences. Please try and learn them. You will be tested on your knowledge of them later. You will be shown 4 independent groups of sentences.</p><br>" + 
+			"<p>Please don't write down any of the information. Your test performance will not affect your compensation.</p>"+
+         	"<br><p>Please do <b>NOT</b> <u>refresh the page</u> or <u>tab away</u> during the study or you <u>will not</u> be compensated.</p><br>" +
+          	"<p>This study should take you approximately 40 minutes. Please do the study in one sitting (i.e. go all the way through without stopping). You will receive an alphanumeric code at the conclusion of the study to input into mTurk. Press any key to begin.</p>"
+          	+"<h1>"+mID+"</h1>"
+        };
 		experiment.push(study_inst);
 			/*Scenario A*/
-		experiment.push(chunks[0]);
+		experiment.push(s1_chunk);
 		experiment.push(periodic_save);
 			/*Scenario B*/
-		experiment.push(between_inst);
+/*		experiment.push(between_inst);
 		experiment.push(chunks[1]);
 		experiment.push(periodic_save);
 			/*Scenario C*/
-		experiment.push(between_inst);
+/*		experiment.push(between_inst);
 		experiment.push(chunks[2]);
 		experiment.push(periodic_save);
 			/*Scenario D*/
-		experiment.push(between_inst);
+/*		experiment.push(between_inst);
 		experiment.push(chunks[3]);
 		experiment.push(periodic_save);
 			/*Final Questions*/
-		experiment.push(final_qs_inst);
+/*		experiment.push(final_qs_inst);
 		experiment.push(final_questions);
 		experiment.push(periodic_save);
 		experiment.push(last_page);
@@ -690,7 +706,7 @@
 		jsPsych.init({
 			experiment_structure: experiment,
 			on_finish: function(data) {
-				saveData(id + ".csv", jsPsych.data.dataAsCSV());
+				saveData(code + ".csv", jsPsych.data.dataAsCSV());
 				jsPsych.data.displayData('csv');
 				//document.write("<center><h1>Your mTurk Code is <u>"+code+"</u></h1></center>");
 			}
