@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 	<head>
   		<title>Experiment DM1</title>
@@ -48,7 +48,7 @@
 			cb: cb
 		};
 		
-		var review_secs = 5; //Should be 5 minutes
+		var review_secs = 5; //Should be 300s
 		var intro_text;
 		if (review_secs==300) {
 			intro_text="<h2>Welcome to our study!</h2><br>" +
@@ -67,7 +67,7 @@
 			questions: [["What is your Amazon mTurk user ID?"]]
 		};
 		
-		/*Save Amazon ID*/
+		/*Periodic Save Stuff*/
 		var periodic_save = {
 			type: 'call-function',
 			func: function(data){
@@ -657,13 +657,21 @@
 		chunks[order[2]] = s3_chunk;
 		chunks[order[3]] = s4_chunk;
 
+		var embed_s1_review = {
+			type: "single-stim",
+			stimuli: ['<iframe src="expDM1_s1RET.html" name="id" width="900" height="1000" frameborder="0"></iframe>'],
+    		is_html: true,
+    		timing_response: 5000,
+    		continue_after_response: false,
+    	};
+ 
 		/*Create experiment array*/
 		var experiment = [];
 			/*General Introductory Materials*/
+		experiment.push(embed_s1_review);
 		experiment.push(introduction);
 		experiment.push(conditions);
 		experiment.push(mTurk_ID_block);
-		var mID = jsPsych.data.getLastTrialData();
 		experiment.push(periodic_save);
 		experiment.push(consent_block);
 		experiment.push(demographics_block);

@@ -1,0 +1,271 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>S1 Retrieval</title>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  		<script src="jspsych.js"></script>
+ 		<script src="plugins/jspsych-text.js"></script>
+ 		<script src="plugins/jspsych-single-stim.js"></script>
+ 		<script src="plugins/jspsych-survey-text-table.js"></script>
+ 		<script src="plugins/jspsych-survey-text.js"></script>
+ 		<script src="plugins/jspsych-call-function.js"></script>
+ 		<script src="plugins/jspsych-survey-text-table-feedback.js"></script>
+ 		<script src="plugins/jspsych-html.js"></script>
+ 		<script src="plugins/jspsych-save-info.js"></script>
+		<link href="css/jspsych.css" rel="stylesheet" type="text/css"/>
+	</head>
+	<body>
+	</body>
+	<script>
+		/*Periodic Save Stuff*/
+		id=window.parent.id_num;
+		var periodic_save = {
+			type: 'call-function',
+			func: function(data){
+				saveData("s1RET_"+ id + ".csv", jsPsych.data.dataAsCSV());
+			}
+		};
+
+		/*Scenario 1 Premises*/
+		var s1_stim = [id+"<br>",'Students commute from off-campus housing to campus by 3 routes.<br><br>',
+		'On Ash, students may walk, bike, or drive.<br><br>',
+		'On Birch, only walking is allowed.<br><br>',
+		'On Canyon, only biking or walking is allowed.<br><br>',
+		'If it is raining, students do not bike.<br><br>',
+		'If it is hot, students drive to campus or take Birch.<br><br>',
+		'Freshmen are not allowed to have cars.<br><br>'];
+		
+		/*Scenario 2 Premises*/
+		var s2_stim = ['The local school has 4 kinds of kids: Nerds, Preps, Goths,and Loners.<br><br>',
+		'If any Preps attend a party, then any Goths who might be present immediately leave.<br><br>',
+		'If there are 10 or more people at any party, then Loners will not be in attendance.<br><br>',
+		'At any party, there are more Preps than Nerds.<br><br>',
+		'Two Nerds never wear the same color shirt.<br><br>',
+		'Goths always wear all black, and no one else ever does.<br><br>',
+		'Preps always wear at least one pastel colored item, and no one else ever does.<br><br>',
+		'Loners always wear a purple shirt, and no one else ever does.<br><br>'];
+		
+		/*Scenario 3 Premises*/
+		var s3_stim = ['There are three tribes living in Slugistan--the Zippers, the Dinkos, and the Goopies.<br><br>',
+		'All Goopies are about 4 feet tall, give or take a few inches.<br><br>',
+		'Zippers are between 3 feet and 7 feet tall.<br><br>',
+		'All Dinkos are 5 feet tall.<br><br>',
+		'Everyone is required to pay a 10% tax on their income.<br><br>',
+		'Everyone over 6 feet tall must pay a $3,000 yearly surtax.<br><br>',
+		'No household can have a combined after-tax earnings exceeding $90,000.<br><br>',
+		'Dinkos pay a $1,000 yearly surtax just for being Dinkos.<br><br>',
+		'Every household always contains at least one Dinko.<br><br>'];
+		
+		/*Scenario 4 Premises*/
+		var s4_stim = ["You've decided to buy a car called the Caliente.<br><br>",
+		'The factory produces the Caliente in only three colors: black, silver, or blue.<br><br>',
+		'The factory makes the Caliente with either a 4- or 6- cylinder engine.<br><br>',
+		'The factory does NOT make a 6-cylinder Caliente in blue.<br><br>',
+		'All Silver 6-cylinder Calientes come with GPS, but no other Calientes have GPS.<br><br>',
+		'The local dealership has 7 Calientes on the lot.<br><br>',
+		'At your local dealership, most of the Calientes have the 4-cylinder engine.<br><br>',
+		'At your local dealership, every 4-cylinder Caliente is black.<br><br>'];
+		
+		/*Randomize the premises*/
+		function randPremises(stimuli){
+			//Randomize
+			var stim_proc = jsPsych.randomization.repeat(stimuli,1);
+			var stim_out = [];
+			//Concatenate
+			for (i=0; i<stim_proc.length; i++) {
+				stim_out += stim_proc[i];
+			}
+			return stim_out;
+		};
+		
+		/*Make a scenario block randomly arranged*/
+		function makeScen(premises) {
+			var premises_block = {
+				type: "single-stim",
+				stimuli: function(){return randPremises(premises);},
+				is_html: true,
+				prompt: "<hr>Once you feel that you can remember these sentences, press any key to continue."
+			};
+			return premises_block;
+		}
+
+
+		/*
+		 * Retrieval Stimuli and Block Construction
+		 * *s1 Retrieval Stimuli & Feedback
+		 * *s2 Retrieval Stimuli & Feedback
+		 * *s3 Retrieval Stimuli & Feedback
+		 * *s4 Retrieval Stimuli & Feedback
+		 * *Question Randomization Function
+		 * *Retrieval + Feedback Block Creation Function
+		 * 
+		 */
+		
+		/*Scenario 1 Retv Stimuli*/
+		var s1_retv_stim = ['Students commute from off-campus housing to campus by any of _____ routes.',
+		'On Ash, students may _____, _____, or _____.',
+		'On Birch, only _____ is allowed.',
+		'On Canyon, only _____ or _____ is allowed',
+		'If it is raining, students do not _____.',
+		'If it is hot, students _____ to campus or take _____.',
+		'Freshmen are not allowed to have _____.'];
+		/*Scenario 1 Feedback*/
+		var s1_retv_back = ['Students commute from off-campus housing to campus by any of <u>_3_</u> routes.',
+		'On Ash, students may <u>walk</u>, <u>bike</u>, or <u>drive</u>.',
+		'On Birch, only <u>walking</u> is allowed.',
+		'On Canyon, only <u>biking</u> or <u>walking</u> is allowed.',
+		'If it is raining, students do not <u>bike</u>.',
+		'If it is hot, students <u>drive</u> to campus or take <u>Birch</u>.',
+		'Freshmen are not allowed to have <u>cars</u>.',];
+		
+		/*Scenario 2 Retv Stimuli*/
+		var s2_retv_stim = ['The local school has 4 kinds of kids: Nerds, Preps, _____,and _____.',
+		'If any Preps attend a party, then any _____ who might be present immediately leave.',
+		'If there are _____ or more people at any party, then _____ will not be in attendance.',
+		'At any party, there are more _____ than _____.',
+		'Two _____ never wear the same color shirt.',
+ 	    '_____ always wear all black, and no one else ever does.',
+		'_____ always wear at least one pastel colored item, and no one else ever does.',
+		'_____ always wear a purple shirt, and no one else ever does.'];
+		/*Scenario 2 Feedback*/
+		var s2_retv_back = ['The local school has 4 kinds of kids: Nerds, Preps, <u>Goths</u>,and <u>Loners</u>',
+		'If any Preps attend a party, then any <u>Goths</u> who might be present immediately leave.',
+		'If there are <u>10</u> or more people at any party, then <u>Loners</u> will not be in attendance.',
+		'At any party, there are more <u>Preps</u> than <u>Nerds</u>.',
+		'Two <u>Nerds</u> never wear the same color shirt.',
+		'<u>Goths</u> always wear all black, and no one else ever does.',
+		'<u>Preps</u> always wear at least one pastel colored item, and no one else ever does.',
+		'<u>Loners</u> always wear a purple shirt, and no one else ever does.'];
+		
+		/*Scenario 3 Retv Stimuli*/
+		var s3_retv_stim = ['There are three tribes living in Slugistan--the Zippers, the _____, and the _____.',
+		'All Goopies are about _____ feet tall, give or take a few inches.',
+		'Zippers are between _____ feet and _____ feet tall.',
+		'All Dinkos are _____ feet tall.',
+		'Everyone is required to pay a _____% tax on their income.',
+		'Everyone over _____ feet tall must pay a $3,000 yearly surtax.',
+		'No household can have a combined after-tax earnings exceeding $_____.',
+		'Dinkos pay a $ _____ yearly surtax just for being Dinkos.'];
+		/*Scenario 3 Feedback*/
+		var s3_retv_back = ['There are three tribes living in Slugistan--the Zippers, the <u>Dinkos</u>, and the <u>Goopies</u>.',
+		'All Goopies are <u>about</u> 4 feet tall, give or take a few inches.',
+		'Zippers are between <u>3</u> feet and <u>7</u> feet tall.',
+		'All Dinkos are <u>5</u> feet tall.',
+		'Everyone is required to pay a <u>10</u>% tax on their income.',
+		'Everyone over <u>6</u> feet tall must pay a $3,000 yearly surtax.',
+		'No household can have a combined after-tax earnings exceeding $<u>90,000</u>.',
+		'Dinkos pay a $<u>1,000</u> yearly surtax just for being Dinkos.'];
+		
+		/*Scenario 4 Retv Stimuli*/
+		var s4_retv_stim = ["You've decided to buy a new car called the _____.",
+		'The factory produces the Caliente in only three colors: black, _____, or _____.',
+		'The factory makes the Caliente with either a _____ or _____ -cylinder engine.',
+		'The factory does NOT make a 6-cylinder Caliente in _____.',
+		'All _____ 6-cylinder Calientes come with GPS, but no other Calientes have GPS.',
+		'The local dealership has _____ Calientes on the lot.',
+		'At your local dealership, most of the Calientes have the _____-cylinder engine.',
+		'At your local dealership, every 4-cylinder Caliente is _____.'];
+		/*Scenario 4 Feedback*/
+		var s4_retv_back = ["You've decided to buy a car called the <u>Caliente</u>.",
+		'The factory produces the Caliente in only three colors: black, <u>silver</u>, or <u>blue</u>.',
+		'The factory makes the Caliente with either a <u>4</u>- or <u>6</u>- cylinder engine.',
+		'The factory does NOT make a 6-cylinder Caliente in <u>blue</u>.',
+		'All <u>Silver</u> 6-cylinder Calientes come with GPS, but no other Calientes have GPS.',
+		'The local dealership has <u>7</u> Calientes on the lot.',
+		'At your local dealership, most of the Calientes have the <u>4</u>-cylinder engine.',
+		'At your local dealership, every 4-cylinder Caliente is <u>black</u>.'];
+		
+		/*Question Randomization Functions*/
+		function randRetvIndex(retv_stim) {
+			var nums = [];
+			for (i=0;i<retv_stim.length;i++) {
+				nums[i] = i;
+			}
+			nums = jsPsych.randomization.repeat(nums,1);
+			return nums;
+		}
+		function randRetv(nums, retv_stim){
+			var stim = [];
+			for (i=0;i<nums.length;i++){
+				stim[i]=retv_stim[nums[i]];
+			}
+			return stim;
+		}
+		
+		/*Construct the Retrieval + Feedback Blocks*/
+		var nums_real;
+		function makeRetv(retv, back) {
+			/*Make Retrival Block*/
+			var retv_block = {
+				type: 'survey-text-table',
+				questions: [function() {
+					nums_real = randRetvIndex(retv);
+					return randRetv(nums_real, retv);}]
+			};
+			var back_block = {
+				type: 'survey-text-table-feedback',
+				questions: [function() {
+					return randRetv(nums_real, back);}]
+			};
+			out = [retv_block, periodic_save, back_block, periodic_save];
+			return out;
+		}
+		
+		/*Review Instructions*/
+		var review_inst_text;
+		var reread_inst = "Now you will review these sentences for <u>5 minutes</u>.<br><br>You will review them in the same format that you studied them in. "+
+		"Please continue cycling through them until the 5 minutes has passed."+
+		"<br><br>Press any key to continue.";
+		var retrieval_inst = "Now you will review these sentences for <u>5 minutes</u>.<br><br>You will be shown sentences with words missing, and you will be asked to recall those words. "+
+		"If there is more than one word missing, please enter both missing words separated by a space.<br><br>After you have submitted your answers, you will be shown the correct answers. "+
+		"Please review the correct answers and then continue.<br><br>You will repeat this exercise for 5 minutes. Please continue reviewing for the entire time."+
+		"<br><br>Press any key to continue";
+		
+		/*Assign instructions and review method for instructions based on condition*/
+
+		loopTimeline_s1 = [makeScen(s1_stim)];
+		review_inst_text1 = reread_inst;
+//		loopTimeline_s1 = makeRetv(s1_retv_stim, s1_retv_back);
+//		review_inst_text1 = retrieval_inst;
+		
+		/*Review Instructions Block*/
+		var review_inst_s1 = {
+			type: "text",
+			text: review_inst_text1
+		};
+		
+		/*Definition of the s1 Reread/Retrieval Loop Block*/
+		var s1_review_loop = {
+			chunk_type: 'while',
+			timeline: loopTimeline_s1,
+			continue_function: function(){
+				return true;
+			}
+		};
+		
+		/*Create experiment array*/
+		var experiment = [];
+		experiment.push(s1_review_loop);
+
+		function saveData(filename, filedata){
+			$.ajax({
+				type:'post',
+				cache: false,
+				url: 'save_data.php',
+				data: {filename: filename, filedata: filedata}
+			});
+		}
+		
+		/*Start the experiment*/
+		jsPsych.init({
+			experiment_structure: experiment,
+			on_finish: function(data) {
+				saveData(code + ".csv", jsPsych.data.dataAsCSV());
+				jsPsych.data.displayData('csv');
+				//document.write("<center><h1>Your mTurk Code is <u>"+code+"</u></h1></center>");
+			}
+		});
+		
+
+	</script>
+</html>
