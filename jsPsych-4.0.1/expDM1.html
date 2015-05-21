@@ -38,7 +38,10 @@
 		var cb = [1,1,0,0];
 		cb = jsPsych.randomization.repeat(cb,1);
 		
-		var id = id_num + "_" + id_letters + "_" + order + "_" + cb; //Final ID Number
+		var order_out = "_"+order[0]+order[1]+order[2]+order[3];
+		var cb_out = "_"+cb[order[0]]+cb[order[1]]+cb[order[2]]+cb[order[3]];
+		
+		var id = id_num + "_" + id_letters + order_out + cb_out; //Final ID Number
 		var code = id_letters + "_" + id_num;
 		
 		var conditions = {
@@ -48,7 +51,7 @@
 			cb: cb
 		};
 		
-		var review_secs = 5; //Should be 300s
+		var review_secs = 300; //Should be 300s
 		var intro_text;
 		if (review_secs==300) {
 			intro_text="<h2>Welcome to our study!</h2><br>" +
@@ -115,7 +118,8 @@
 			text: "<p>In this study, you will be shown some sentences. Please try and learn them. You will be tested on your knowledge of them later. You will be shown 4 independent groups of sentences.</p><br>" + 
 			"<p>Please don't write down any of the information. Your test performance will not affect your compensation.</p>"+
          	"<br><p>Please do <b>NOT</b> <u>refresh the page</u> or <u>tab away</u> during the study or you <u>will not</u> be compensated.</p><br>" +
-          	"<p>This study should take you approximately 40 minutes. Please do the study in one sitting (i.e. go all the way through without stopping). You will receive an alphanumeric code at the conclusion of the study to input into mTurk. Press any key to begin.</p>"
+         	"<p>If the screen does not advance due to button press (at any point during the experiment), click the screen and then press to advance."+
+          	"<br><p>This study should take you approximately 40 minutes. Please do the study in one sitting (i.e. go all the way through without stopping). You will receive an alphanumeric code at the conclusion of the study to input into mTurk. Press any key to begin.</p>"
         };
         
         var between_inst = {
@@ -336,7 +340,8 @@
 		/*Review Instructions*/
 		var review_inst_text;
 		var reread_inst = "Now you will review these sentences for <u>5 minutes</u>.<br><br>You will review them in the same format that you studied them in. "+
-		"Please continue cycling through them until the 5 minutes has passed."+
+		"Please continue cycling through them until the 5 minutes has passed. "+
+		"<br><br>Note: If at any point the screen does not advance after a key press, click the screen and then press again to advance."+
 		"<br><br>Press any key to continue.";
 		var retrieval_inst = "Now you will review these sentences for <u>5 minutes</u>.<br><br>You will be shown sentences with words missing, and you will be asked to recall those words. "+
 		"If there is more than one word missing, please enter both missing words separated by a space.<br><br>After you have submitted your answers, you will be shown the correct answers. "+
@@ -346,7 +351,7 @@
 		/*Assign instructions and review method for instructions based on condition*/
 		
 		/*Start Loop Time Block*/
-		var startTime;
+/*		var startTime;
 		var start_review_time = {
 			type: 'call-function',
 			func: function(){
@@ -356,34 +361,34 @@
 		
 		/*Determine which condition for review loop*/
 		if (cb[0] == 1){
-			loopTimeline_s1 = [makeScen(s1_stim)];
+			loopTimeline_s1 = ['<iframe src="expDM1_s1RES.html" name="id" width="900" height="1000" frameborder="0"></iframe>'];
 			review_inst_text1 = reread_inst;
 		} else {
-			loopTimeline_s1 = makeRetv(s1_retv_stim, s1_retv_back);
+			loopTimeline_s1 = ['<iframe src="expDM1_s1RET.html" name="id" width="900" height="1000" frameborder="0"></iframe>'];
 			review_inst_text1 = retrieval_inst;
 		}
 		if (cb[1] == 1){
-			loopTimeline_s2 = [makeScen(s2_stim)];
+			loopTimeline_s2 = ['<iframe src="expDM1_s2RES.html" name="id" width="900" height="1000" frameborder="0"></iframe>'];
 			review_inst_text2 = reread_inst;
 		} else {
-			loopTimeline_s2 = makeRetv(s2_retv_stim, s2_retv_back);
+			loopTimeline_s2 = ['<iframe src="expDM1_s2RET.html" name="id" width="900" height="1000" frameborder="0"></iframe>'];
 			review_inst_text2 = retrieval_inst;
 		}		
 		if (cb[2] == 1){
-			loopTimeline_s3 = [makeScen(s3_stim)];
+			loopTimeline_s3 = ['<iframe src="expDM1_s3RES.html" name="id" width="900" height="1000" frameborder="0"></iframe>'];
 			review_inst_text3 = reread_inst;
 		} else {
-			loopTimeline_s3 = makeRetv(s3_retv_stim, s3_retv_back);
+			loopTimeline_s3 = ['<iframe src="expDM1_s3RET.html" name="id" width="900" height="1000" frameborder="0"></iframe>'];
 			review_inst_text3 = retrieval_inst;
 		}	
 		if (cb[3] == 1){
-			loopTimeline_s4 = [makeScen(s4_stim)];
+			loopTimeline_s4 = ['<iframe src="expDM1_s4RES.html" name="id" width="900" height="1000" frameborder="0"></iframe>'];
 			review_inst_text4 = reread_inst;
 		} else {
-			loopTimeline_s4 = makeRetv(s4_retv_stim, s4_retv_back);
+			loopTimeline_s4 = ['<iframe src="expDM1_s4RET.html" name="id" width="900" height="1000" frameborder="0"></iframe>'];
 			review_inst_text4 = retrieval_inst;
 		}
-		
+
 		/*Review Instructions Block*/
 		var review_inst_s1 = {
 			type: "text",
@@ -407,59 +412,39 @@
 		
 		/*Definition of the s1 Reread/Retrieval Loop Block*/
 		var s1_review_loop = {
-			chunk_type: 'while',
-			timeline: loopTimeline_s1,
-			continue_function: function(){
-				var currentTime = (new Date()).getTime();
-				if(currentTime-startTime > review_secs * 1000){ //300s * 1000ms
-					return false;
-				} else {
-					return true;
-				}
-			}
-		};
+			type: 'single-stim',
+			stimuli: loopTimeline_s1,
+    		is_html: true,
+    		timing_response: review_secs*1000,
+    		continue_after_response: false,
+    		};
 		
 		/*Definition of the s2 Reread/Retrieval Loop Block*/
 		var s2_review_loop = {
-			chunk_type: 'while',
-			timeline: loopTimeline_s2,
-			continue_function: function(){
-				var currentTime = (new Date()).getTime();
-				if(currentTime-startTime > review_secs * 1000){ //300s * 1000ms
-					return false;
-				} else {
-					return true;
-				}
-			}
-		};
+			type: 'single-stim',
+			stimuli: loopTimeline_s2,
+    		is_html: true,
+    		timing_response: review_secs*1000,
+    		continue_after_response: false,
+    		};
 		
 		/*Definition of the s3 Reread/Retrieval Loop Block*/
 		var s3_review_loop = {
-			chunk_type: 'while',
-			timeline: loopTimeline_s3,
-			continue_function: function(){
-				var currentTime = (new Date()).getTime();
-				if(currentTime-startTime > review_secs * 1000){ //300s * 1000ms
-					return false;
-				} else {
-					return true;
-				}
-			}
-		};
+			type: 'single-stim',
+			stimuli: loopTimeline_s3,
+    		is_html: true,
+    		timing_response: review_secs*1000,
+    		continue_after_response: false,
+    		};
 		
 		/*Definition of the s4 Reread/Retrieval Loop Block*/
 		var s4_review_loop = {
-			chunk_type: 'while',
-			timeline: loopTimeline_s4,
-			continue_function: function(){
-				var currentTime = (new Date()).getTime();
-				if(currentTime-startTime > review_secs * 1000){ //300s * 1000ms
-					return false;
-				} else {
-					return true;
-				}
-			}
-		};
+			type: 'single-stim',
+			stimuli: loopTimeline_s4,
+    		is_html: true,
+    		timing_response: review_secs*1000,
+    		continue_after_response: false,
+    		};
 		
 		/*
 		 * Final Test Portion
@@ -597,7 +582,6 @@
 		s1_timeline = [];
 		s1_timeline.push(makeScen(s1_stim));
 		s1_timeline.push(review_inst_s1);
-		s1_timeline.push(start_review_time);
 		s1_timeline.push(s1_review_loop);
 		s1_timeline.push(test_inst);
 		s1_timeline.push(scenario1_questions);
@@ -610,7 +594,6 @@
 		s2_timeline = [];
 		s2_timeline.push(makeScen(s2_stim));
 		s2_timeline.push(review_inst_s1);
-		s2_timeline.push(start_review_time);
 		s2_timeline.push(s2_review_loop);
 		s2_timeline.push(test_inst);
 		s2_timeline.push(scenario2_questions);
@@ -624,7 +607,6 @@
 		s3_timeline = [];
 		s3_timeline.push(makeScen(s3_stim));
 		s3_timeline.push(review_inst_s3);
-		s3_timeline.push(start_review_time);
 		s3_timeline.push(s3_review_loop);
 		s3_timeline.push(test_inst);
 		s3_timeline.push(scenario3_questions);
@@ -638,7 +620,6 @@
 		s4_timeline = [];
 		s4_timeline.push(makeScen(s4_stim));
 		s4_timeline.push(review_inst_s4);
-		s4_timeline.push(start_review_time);
 		s4_timeline.push(s4_review_loop);
 		s4_timeline.push(test_inst);
 		s4_timeline.push(scenario4_questions);
@@ -656,27 +637,10 @@
 		chunks[order[1]] = s2_chunk;
 		chunks[order[2]] = s3_chunk;
 		chunks[order[3]] = s4_chunk;
-
-		var embed_s1_review = {
-			type: "single-stim",
-			stimuli: ['<iframe src="expDM1_s1RET.html" name="id" width="900" height="1000" frameborder="0"></iframe>',
-				'<iframe src="expDM1_s2RET.html" name="id" width="900" height="1000" frameborder="0"></iframe>',
-				'<iframe src="expDM1_s3RET.html" name="id" width="900" height="1000" frameborder="0"></iframe>',
-				'<iframe src="expDM1_s4RET.html" name="id" width="900" height="1000" frameborder="0"></iframe>',
-				'<iframe src="expDM1_s1RES.html" name="id" width="900" height="1000" frameborder="0"></iframe>',
-				'<iframe src="expDM1_s2RES.html" name="id" width="900" height="1000" frameborder="0"></iframe>',
-				'<iframe src="expDM1_s3RES.html" name="id" width="900" height="1000" frameborder="0"></iframe>',
-				'<iframe src="expDM1_s4RES.html" name="id" width="900" height="1000" frameborder="0"></iframe>',
-				],
-    		is_html: true,
-    		timing_response: 5000,
-    		continue_after_response: false,
-    	};
  
 		/*Create experiment array*/
 		var experiment = [];
 			/*General Introductory Materials*/
-		experiment.push(embed_s1_review);
 		experiment.push(introduction);
 		experiment.push(conditions);
 		experiment.push(mTurk_ID_block);
@@ -686,7 +650,7 @@
 		experiment.push(periodic_save);
 		experiment.push(study_inst);
 			/*Scenario A*/
-		experiment.push(s1_chunk);
+		experiment.push(chunks[0]);
 		experiment.push(periodic_save);
 			/*Scenario B*/
 		experiment.push(between_inst);
@@ -720,9 +684,9 @@
 		jsPsych.init({
 			experiment_structure: experiment,
 			on_finish: function(data) {
-				saveData(code + ".csv", jsPsych.data.dataAsCSV());
-				jsPsych.data.displayData('csv');
-				//document.write("<center><h1>Your mTurk Code is <u>"+code+"</u></h1></center>");
+				saveData(id + ".csv", jsPsych.data.dataAsCSV());
+				//jsPsych.data.displayData('csv');
+				document.write("<center><h1>Your mTurk Code is <u>"+code+"</u></h1></center>");
 			}
 		});
 		
