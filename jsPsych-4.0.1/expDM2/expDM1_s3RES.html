@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>S3 Restudy</title>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  		<script src="jspsych.js"></script>
+ 		<script src="plugins/jspsych-text.js"></script>
+ 		<script src="plugins/jspsych-single-stim.js"></script>
+ 		<script src="plugins/jspsych-survey-text-table.js"></script>
+ 		<script src="plugins/jspsych-survey-text.js"></script>
+ 		<script src="plugins/jspsych-call-function.js"></script>
+ 		<script src="plugins/jspsych-survey-text-table-feedback.js"></script>
+ 		<script src="plugins/jspsych-html.js"></script>
+ 		<script src="plugins/jspsych-save-info.js"></script>
+		<link href="css/jspsych.css" rel="stylesheet" type="text/css"/>
+	</head>
+	<body>
+	</body>
+	<script>
+		/*Periodic Save Stuff*/
+		id=window.parent.id_num;
+		var periodic_save = {
+			type: 'call-function',
+			func: function(data){
+				saveData(id + "_s3RES.csv", jsPsych.data.dataAsCSV());
+			}
+		};
+		
+		/*Scenario 3 Premises*/
+		var s3_stim = ['There are three tribes living in Slugistan--the Zippers, the Dinkos, and the Goopies.<br><br>',
+		'All Goopies are about 4 feet tall, give or take a few inches.<br><br>',
+		'Zippers are between 3 feet and 7 feet tall.<br><br>',
+		'All Dinkos are 5 feet tall.<br><br>',
+		'Everyone is required to pay a 10% tax on their income.<br><br>',
+		'Everyone over 6 feet tall must pay a $3,000 yearly surtax.<br><br>',
+		'No household can have a combined after-tax earnings exceeding $90,000.<br><br>',
+		'Dinkos pay a $1,000 yearly surtax just for being Dinkos.<br><br>',
+		'Every household always contains at least one Dinko.<br><br>'];
+		
+		/*Randomize the premises*/
+		function randPremises(stimuli){
+			//Randomize
+			var stim_proc = jsPsych.randomization.repeat(stimuli,1);
+			var stim_out = [];
+			//Concatenate
+			for (i=0; i<stim_proc.length; i++) {
+				stim_out += stim_proc[i];
+			}
+			return stim_out;
+		};
+		
+		/*Make a scenario block randomly arranged*/
+		function makeScen(premises) {
+			var premises_block = {
+				type: "single-stim",
+				stimuli: function(){return randPremises(premises);},
+				is_html: true,
+				prompt: "<hr>Once you feel that you can remember these sentences, press any key to continue."
+			};
+			return premises_block;
+		}
+
+		loopTimeline_s3 = [makeScen(s3_stim), periodic_save];
+		
+		/*Definition of the s1 Reread/Retrieval Loop Block*/
+		var s3_review_loop = {
+			chunk_type: 'while',
+			timeline: loopTimeline_s3,
+			continue_function: function(){
+				return true;
+			}
+		};
+		
+		/*Create experiment array*/
+		var experiment = [];
+		experiment.push(s3_review_loop);
+
+		function saveData(filename, filedata){
+			$.ajax({
+				type:'post',
+				cache: false,
+				url: 'save_data.php',
+				data: {filename: filename, filedata: filedata}
+			});
+		}
+		
+		/*Start the experiment*/
+		jsPsych.init({
+			experiment_structure: experiment,
+			on_finish: function(data) {
+				saveData(code + ".csv", jsPsych.data.dataAsCSV());
+				jsPsych.data.displayData('csv');
+				//document.write("<center><h1>Your mTurk Code is <u>"+code+"</u></h1></center>");
+			}
+		});
+		
+
+	</script>
+</html>

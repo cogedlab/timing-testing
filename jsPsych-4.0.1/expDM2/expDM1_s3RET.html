@@ -1,0 +1,131 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>S3 Retrieval</title>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  		<script src="jspsych.js"></script>
+ 		<script src="plugins/jspsych-text.js"></script>
+ 		<script src="plugins/jspsych-single-stim.js"></script>
+ 		<script src="plugins/jspsych-survey-text-table.js"></script>
+ 		<script src="plugins/jspsych-survey-text.js"></script>
+ 		<script src="plugins/jspsych-call-function.js"></script>
+ 		<script src="plugins/jspsych-survey-text-table-feedback.js"></script>
+ 		<script src="plugins/jspsych-html.js"></script>
+ 		<script src="plugins/jspsych-save-info.js"></script>
+		<link href="css/jspsych.css" rel="stylesheet" type="text/css"/>
+	</head>
+	<body>
+	</body>
+	<script>
+		/*Periodic Save Stuff*/
+		id=window.parent.id_num;
+		var periodic_save = {
+			type: 'call-function',
+			func: function(data){
+				saveData(id + "_s3RET.csv", jsPsych.data.dataAsCSV());
+			}
+		};
+
+		/*
+		 * Retrieval Stimuli and Block Construction
+		 * *s1 Retrieval Stimuli & Feedback
+		 * *s2 Retrieval Stimuli & Feedback
+		 * *s3 Retrieval Stimuli & Feedback
+		 * *s4 Retrieval Stimuli & Feedback
+		 * *Question Randomization Function
+		 * *Retrieval + Feedback Block Creation Function
+		 * 
+		 */
+				
+		/*Scenario 3 Retv Stimuli*/
+		var s3_retv_stim = ['There are three tribes living in Slugistan--the Zippers, the _____, and the _____.',
+		'All Goopies are about _____ feet tall, give or take a few inches.',
+		'Zippers are between _____ feet and _____ feet tall.',
+		'All Dinkos are _____ feet tall.',
+		'Everyone is required to pay a _____% tax on their income.',
+		'Everyone over _____ feet tall must pay a $3,000 yearly surtax.',
+		'No household can have a combined after-tax earnings exceeding $_____.',
+		'Dinkos pay a $ _____ yearly surtax just for being Dinkos.'];
+		/*Scenario 3 Feedback*/
+		var s3_retv_back = ['There are three tribes living in Slugistan--the Zippers, the <u>Dinkos</u>, and the <u>Goopies</u>.',
+		'All Goopies are <u>about</u> 4 feet tall, give or take a few inches.',
+		'Zippers are between <u>3</u> feet and <u>7</u> feet tall.',
+		'All Dinkos are <u>5</u> feet tall.',
+		'Everyone is required to pay a <u>10</u>% tax on their income.',
+		'Everyone over <u>6</u> feet tall must pay a $3,000 yearly surtax.',
+		'No household can have a combined after-tax earnings exceeding $<u>90,000</u>.',
+		'Dinkos pay a $<u>1,000</u> yearly surtax just for being Dinkos.'];
+				
+		/*Question Randomization Functions*/
+		function randRetvIndex(retv_stim) {
+			var nums = [];
+			for (i=0;i<retv_stim.length;i++) {
+				nums[i] = i;
+			}
+			nums = jsPsych.randomization.repeat(nums,1);
+			return nums;
+		}
+		function randRetv(nums, retv_stim){
+			var stim = [];
+			for (i=0;i<nums.length;i++){
+				stim[i]=retv_stim[nums[i]];
+			}
+			return stim;
+		}
+		
+		/*Construct the Retrieval + Feedback Blocks*/
+		var nums_real;
+		function makeRetv(retv, back) {
+			/*Make Retrival Block*/
+			var retv_block = {
+				type: 'survey-text-table',
+				questions: [function() {
+					nums_real = randRetvIndex(retv);
+					return randRetv(nums_real, retv);}]
+			};
+			var back_block = {
+				type: 'survey-text-table-feedback',
+				questions: [function() {
+					return randRetv(nums_real, back);}]
+			};
+			out = [retv_block, periodic_save, back_block, periodic_save];
+			return out;
+		}
+		
+		loopTimeline_s3 = makeRetv(s3_retv_stim, s3_retv_back);
+		
+		/*Definition of the s1 Reread/Retrieval Loop Block*/
+		var s3_review_loop = {
+			chunk_type: 'while',
+			timeline: loopTimeline_s3,
+			continue_function: function(){
+				return true;
+			}
+		};
+		
+		/*Create experiment array*/
+		var experiment = [];
+		experiment.push(s3_review_loop);
+
+		function saveData(filename, filedata){
+			$.ajax({
+				type:'post',
+				cache: false,
+				url: 'save_data.php',
+				data: {filename: filename, filedata: filedata}
+			});
+		}
+		
+		/*Start the experiment*/
+		jsPsych.init({
+			experiment_structure: experiment,
+			on_finish: function(data) {
+				saveData(code + ".csv", jsPsych.data.dataAsCSV());
+				jsPsych.data.displayData('csv');
+				//document.write("<center><h1>Your mTurk Code is <u>"+code+"</u></h1></center>");
+			}
+		});
+		
+
+	</script>
+</html>

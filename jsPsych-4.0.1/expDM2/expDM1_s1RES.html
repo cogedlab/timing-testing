@@ -1,0 +1,97 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>S1 Restudy</title>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  		<script src="jspsych.js"></script>
+ 		<script src="plugins/jspsych-text.js"></script>
+ 		<script src="plugins/jspsych-single-stim.js"></script>
+ 		<script src="plugins/jspsych-survey-text-table.js"></script>
+ 		<script src="plugins/jspsych-survey-text.js"></script>
+ 		<script src="plugins/jspsych-call-function.js"></script>
+ 		<script src="plugins/jspsych-survey-text-table-feedback.js"></script>
+ 		<script src="plugins/jspsych-html.js"></script>
+ 		<script src="plugins/jspsych-save-info.js"></script>
+		<link href="css/jspsych.css" rel="stylesheet" type="text/css"/>
+	</head>
+	<body>
+	</body>
+	<script>
+		/*Periodic Save Stuff*/
+		id=window.parent.id_num;
+		var periodic_save = {
+			type: 'call-function',
+			func: function(data){
+				saveData(id + "_s1RES.csv", jsPsych.data.dataAsCSV());
+			}
+		};
+
+		/*Scenario 1 Premises*/
+		var s1_stim = ['Students commute from off-campus housing to campus by 3 routes.<br><br>',
+		'On Ash, students may walk, bike, or drive.<br><br>',
+		'On Birch, only walking is allowed.<br><br>',
+		'On Canyon, only biking or walking is allowed.<br><br>',
+		'If it is raining, students do not bike.<br><br>',
+		'If it is hot, students drive to campus or take Birch.<br><br>',
+		'Freshmen are not allowed to have cars.<br><br>'];
+				
+		/*Randomize the premises*/
+		function randPremises(stimuli){
+			//Randomize
+			var stim_proc = jsPsych.randomization.repeat(stimuli,1);
+			var stim_out = [];
+			//Concatenate
+			for (i=0; i<stim_proc.length; i++) {
+				stim_out += stim_proc[i];
+			}
+			return stim_out;
+		};
+		
+		/*Make a scenario block randomly arranged*/
+		function makeScen(premises) {
+			var premises_block = {
+				type: "single-stim",
+				stimuli: function(){return randPremises(premises);},
+				is_html: true,
+				prompt: "<hr>Once you feel that you can remember these sentences, press any key to continue."
+			};
+			return premises_block;
+		}
+
+		loopTimeline_s1 = [makeScen(s1_stim), periodic_save];
+		
+		/*Definition of the s1 Reread/Retrieval Loop Block*/
+		var s1_review_loop = {
+			chunk_type: 'while',
+			timeline: loopTimeline_s1,
+			continue_function: function(){
+				return true;
+			}
+		};
+		
+		/*Create experiment array*/
+		var experiment = [];
+		experiment.push(s1_review_loop);
+
+		function saveData(filename, filedata){
+			$.ajax({
+				type:'post',
+				cache: false,
+				url: 'save_data.php',
+				data: {filename: filename, filedata: filedata}
+			});
+		}
+		
+		/*Start the experiment*/
+		jsPsych.init({
+			experiment_structure: experiment,
+			on_finish: function(data) {
+				saveData(code + ".csv", jsPsych.data.dataAsCSV());
+				jsPsych.data.displayData('csv');
+				//document.write("<center><h1>Your mTurk Code is <u>"+code+"</u></h1></center>");
+			}
+		});
+		
+
+	</script>
+</html>
