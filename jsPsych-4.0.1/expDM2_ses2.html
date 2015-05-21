@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html>
+	<head>
+  		<title>Experiment DM2 Session 2</title>
+  		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  		<script src="jspsych.js"></script>
+ 		<script src="plugins/jspsych-text.js"></script>
+ 		<script src="plugins/jspsych-single-stim.js"></script>
+ 		<script src="plugins/jspsych-survey-text-table.js"></script>
+ 		<script src="plugins/jspsych-survey-text.js"></script>
+ 		<script src="plugins/jspsych-call-function.js"></script>
+ 		<script src="plugins/jspsych-survey-text-table-feedback.js"></script>
+ 		<script src="plugins/jspsych-html.js"></script>
+ 		<script src="plugins/jspsych-save-info.js"></script>
+		<link href="css/jspsych.css" rel="stylesheet" type="text/css"/>
+	</head>
+	<body>
+	</body>
+	<script>
+		/*
+		 * Introduction Portion
+		 * *ID Creation
+		 * *General Study Intro
+		 * *mTurk ID Block
+		 * *Consent Form
+		 * *Demographics
+		 * 
+		 */
+		
+		/*Random number id creation and condition assignment*/
+		var id_num = Math.floor(Math.random()*1000000);
+		var cond_num = Math.round(Math.random());
+		var id_letters = "DED1";
+		
+		var order = [0,1,2,3];
+		order = jsPsych.randomization.repeat(order,1);
+		
+		var cb = [1,1,0,0];
+		cb = jsPsych.randomization.repeat(cb,1);
+		
+		var order_out = "_"+order[0]+order[1]+order[2]+order[3];
+		var cb_out = "_"+cb[order[0]]+cb[order[1]]+cb[order[2]]+cb[order[3]];
+		
+		var id = id_num + "_" + id_letters + order_out + cb_out; //Final ID Number
+		var code = id_letters + "_" + id_num;
+		
+		var conditions = {
+			type: "save-info",
+			id: code,
+			order: order,
+			cb: cb
+		};
+		
+		var review_secs = 5; //Should be 300s
+		var intro_text;
+		if (review_secs==300) {
+			intro_text="<h2>Welcome to our study!</h2><br>" +
+			"<p>We'll get started in one moment, but please first answer some initial questions. Press any key to continue.</p>";
+		} else {
+			intro_text="<h1>DEBUG MODE: " + id + "</h1>";
+		}
+		var introduction = {
+			type: 'text',
+			text: intro_text,
+		};
+		
+		/*Get Amazon ID*/
+		var mTurk_ID_block = {
+			type: 'survey-text',
+			questions: [["What is your Amazon mTurk user ID?"]]
+		};
+		
+		/*Periodic Save Stuff*/
+		var periodic_save = {
+			type: 'call-function',
+			func: function(data){
+				saveData(id + ".csv", jsPsych.data.dataAsCSV());
+			}
+		};
+		
+		/*Consent Functions and Block*/
+		var check_consent = function() {
+			if($('#consent_checkbox').is(':checked')) {
+				return true;
+			} else {
+				alert("If you wish to participate in this study, please check the box labeled 'Check this box to indicate your consent.'");
+				return false;
+			}
+			return false;
+		};
+		var consent_block = {
+			type: 'html',
+			pages: [{url: 'DeductionConsent.html', cont_btn:"start", check_fn: check_consent}]
+		};
+		
+		/*Demographics Block*/
+		var demog_qs = [['What is your age (in years)?',
+		'What is your sex?',
+		'Are you right or left handed?',
+		'What is your race/ethnicity?',
+		'What is your first language?',
+		'At roughly what age did you start speaking English?',
+		'What langauges besides english do you know? (In parenthesis note level of fluency.)'
+		],
+		['What type of device are you using (i.e. MacBook Pro, HP Probook, Lenovo, iPhone, iPad, etc.)',
+		'What Browser are you using? (i.e. Chrome, Firefox, Internet Explorer, Safari)',
+		'What Operating System do you use? (i.e. Windows 7, Apple OS-X, Linux, etc.)',
+		'What kind of internet were you using? (Hardline (Ethernet), Wifi, 4G, etc.)'
+		]];
+		var demographics_block = {
+			type: 'survey-text-table',
+			questions: demog_qs
+		};
+		
+		/*Instructions block*/
+		var study_inst = {
+			type: "text",
+			text: "<p>In this study, you will be shown some sentences. Please try and learn them. You will be tested on your knowledge of them later. You will be shown 4 independent groups of sentences.</p><br>" + 
+			"<p>Please don't write down any of the information. Your test performance will not affect your compensation.</p>"+
+         	"<br><p>Please do <b>NOT</b> <u>refresh the page</u> or <u>tab away</u> during the study or you <u>will not</u> be compensated.</p><br>" +
+         	"<p>If the screen does not advance due to button press (at any point during the experiment), click the screen and then press to advance."+
+          	"<br><p>This study should take you approximately 40 minutes. Please do the study in one sitting (i.e. go all the way through without stopping). You will receive an alphanumeric code at the conclusion of the study to input into mTurk. Press any key to begin.</p>"
+        };
+        
+        var between_inst = {
+        	type: "text",
+        	text: "<p>Now you are going to be shown another set of sentences."+
+        	"<p>Again, please don't write down any of the information. Your test performance will not affect your compensation.</p>"+
+        	"<p>Press any key to advance."
+        };
+
+		/*
+		 * Scenario Stimuli + Block Construction
+		 * *s1 Premises
+		 * *s2 Premises
+		 * *s3 Premises
+		 * *s4 Premises
+		 * *Randomize Premises Function
+		 * *Create Premise Block Function
+		 * 
+		 */
+		
+		/*Scenario 1 Premises*/
+		var s1_stim = ['Students commute from off-campus housing to campus by 3 routes.<br><br>',
+		'On Ash, students may walk, bike, or drive.<br><br>',
+		'On Birch, only walking is allowed.<br><br>',
+		'On Canyon, only biking or walking is allowed.<br><br>',
+		'If it is raining, students do not bike.<br><br>',
+		'If it is hot, students drive to campus or take Birch.<br><br>',
+		'Freshmen are not allowed to have cars.<br><br>'];
+		
+		/*Scenario 2 Premises*/
+		var s2_stim = ['The local school has 4 kinds of kids: Nerds, Preps, Goths,and Loners.<br><br>',
+		'If any Preps attend a party, then any Goths who might be present immediately leave.<br><br>',
+		'If there are 10 or more people at any party, then Loners will not be in attendance.<br><br>',
+		'At any party, there are more Preps than Nerds.<br><br>',
+		'Two Nerds never wear the same color shirt.<br><br>',
+		'Goths always wear all black, and no one else ever does.<br><br>',
+		'Preps always wear at least one pastel colored item, and no one else ever does.<br><br>',
+		'Loners always wear a purple shirt, and no one else ever does.<br><br>'];
+		
+		/*Scenario 3 Premises*/
+		var s3_stim = ['There are three tribes living in Slugistan--the Zippers, the Dinkos, and the Goopies.<br><br>',
+		'All Goopies are about 4 feet tall, give or take a few inches.<br><br>',
+		'Zippers are between 3 feet and 7 feet tall.<br><br>',
+		'All Dinkos are 5 feet tall.<br><br>',
+		'Everyone is required to pay a 10% tax on their income.<br><br>',
+		'Everyone over 6 feet tall must pay a $3,000 yearly surtax.<br><br>',
+		'No household can have a combined after-tax earnings exceeding $90,000.<br><br>',
+		'Dinkos pay a $1,000 yearly surtax just for being Dinkos.<br><br>',
+		'Every household always contains at least one Dinko.<br><br>'];
+		
+		/*Scenario 4 Premises*/
+		var s4_stim = ["You've decided to buy a car called the Caliente.<br><br>",
+		'The factory produces the Caliente in only three colors: black, silver, or blue.<br><br>',
+		'The factory makes the Caliente with either a 4- or 6- cylinder engine.<br><br>',
+		'The factory does NOT make a 6-cylinder Caliente in blue.<br><br>',
+		'All Silver 6-cylinder Calientes come with GPS, but no other Calientes have GPS.<br><br>',
+		'The local dealership has 7 Calientes on the lot.<br><br>',
+		'At your local dealership, most of the Calientes have the 4-cylinder engine.<br><br>',
+		'At your local dealership, every 4-cylinder Caliente is black.<br><br>'];
+		
+		/*Randomize the premises*/
+		function randPremises(stimuli){
+			//Randomize
+			var stim_proc = jsPsych.randomization.repeat(stimuli,1);
+			var stim_out = [];
+			//Concatenate
+			for (i=0; i<stim_proc.length; i++) {
+				stim_out += stim_proc[i];
+			}
+			return stim_out;
+		};
+		
+		/*Make a scenario block randomly arranged*/
+		function makeScen(premises) {
+			var premises_block = {
+				type: "single-stim",
+				stimuli: function(){return randPremises(premises);},
+				is_html: true,
+				prompt: "<hr>Once you feel that you can remember these sentences, press any key to continue."
+			};
+			return premises_block;
+		}
+		
+		/*
+		 * Retrieval Stimuli and Block Construction
+		 * *s1 Retrieval Stimuli & Feedback
+		 * *s2 Retrieval Stimuli & Feedback
+		 * *s3 Retrieval Stimuli & Feedback
+		 * *s4 Retrieval Stimuli & Feedback
+		 * *Question Randomization Function
+		 * *Retrieval + Feedback Block Creation Function
+		 * 
+		 */
+		
+		/*Scenario 1 Retv Stimuli*/
+		var s1_retv_stim = ['Students commute from off-campus housing to campus by any of _____ routes.',
+		'On Ash, students may _____, _____, or _____.',
+		'On Birch, only _____ is allowed.',
+		'On Canyon, only _____ or _____ is allowed',
+		'If it is raining, students do not _____.',
+		'If it is hot, students _____ to campus or take _____.',
+		'Freshmen are not allowed to have _____.'];
+		/*Scenario 1 Feedback*/
+		var s1_retv_back = ['Students commute from off-campus housing to campus by any of <u>_3_</u> routes.',
+		'On Ash, students may <u>walk</u>, <u>bike</u>, or <u>drive</u>.',
+		'On Birch, only <u>walking</u> is allowed.',
+		'On Canyon, only <u>biking</u> or <u>walking</u> is allowed.',
+		'If it is raining, students do not <u>bike</u>.',
+		'If it is hot, students <u>drive</u> to campus or take <u>Birch</u>.',
+		'Freshmen are not allowed to have <u>cars</u>.',];
+		
+		/*Scenario 2 Retv Stimuli*/
+		var s2_retv_stim = ['The local school has 4 kinds of kids: Nerds, Preps, _____,and _____.',
+		'If any Preps attend a party, then any _____ who might be present immediately leave.',
+		'If there are _____ or more people at any party, then _____ will not be in attendance.',
+		'At any party, there are more _____ than _____.',
+		'Two _____ never wear the same color shirt.',
+ 	    '_____ always wear all black, and no one else ever does.',
+		'_____ always wear at least one pastel colored item, and no one else ever does.',
+		'_____ always wear a purple shirt, and no one else ever does.'];
+		/*Scenario 2 Feedback*/
+		var s2_retv_back = ['The local school has 4 kinds of kids: Nerds, Preps, <u>Goths</u>,and <u>Loners</u>',
+		'If any Preps attend a party, then any <u>Goths</u> who might be present immediately leave.',
+		'If there are <u>10</u> or more people at any party, then <u>Loners</u> will not be in attendance.',
+		'At any party, there are more <u>Preps</u> than <u>Nerds</u>.',
+		'Two <u>Nerds</u> never wear the same color shirt.',
+		'<u>Goths</u> always wear all black, and no one else ever does.',
+		'<u>Preps</u> always wear at least one pastel colored item, and no one else ever does.',
+		'<u>Loners</u> always wear a purple shirt, and no one else ever does.'];
+		
+		/*Scenario 3 Retv Stimuli*/
+		var s3_retv_stim = ['There are three tribes living in Slugistan--the Zippers, the _____, and the _____.',
+		'All Goopies are about _____ feet tall, give or take a few inches.',
+		'Zippers are between _____ feet and _____ feet tall.',
+		'All Dinkos are _____ feet tall.',
+		'Everyone is required to pay a _____% tax on their income.',
+		'Everyone over _____ feet tall must pay a $3,000 yearly surtax.',
+		'No household can have a combined after-tax earnings exceeding $_____.',
+		'Dinkos pay a $ _____ yearly surtax just for being Dinkos.'];
+		/*Scenario 3 Feedback*/
+		var s3_retv_back = ['There are three tribes living in Slugistan--the Zippers, the <u>Dinkos</u>, and the <u>Goopies</u>.',
+		'All Goopies are <u>about</u> 4 feet tall, give or take a few inches.',
+		'Zippers are between <u>3</u> feet and <u>7</u> feet tall.',
+		'All Dinkos are <u>5</u> feet tall.',
+		'Everyone is required to pay a <u>10</u>% tax on their income.',
+		'Everyone over <u>6</u> feet tall must pay a $3,000 yearly surtax.',
+		'No household can have a combined after-tax earnings exceeding $<u>90,000</u>.',
+		'Dinkos pay a $<u>1,000</u> yearly surtax just for being Dinkos.'];
+		
+		/*Scenario 4 Retv Stimuli*/
+		var s4_retv_stim = ["You've decided to buy a new car called the _____.",
+		'The factory produces the Caliente in only three colors: black, _____, or _____.',
+		'The factory makes the Caliente with either a _____ or _____ -cylinder engine.',
+		'The factory does NOT make a 6-cylinder Caliente in _____.',
+		'All _____ 6-cylinder Calientes come with GPS, but no other Calientes have GPS.',
+		'The local dealership has _____ Calientes on the lot.',
+		'At your local dealership, most of the Calientes have the _____-cylinder engine.',
+		'At your local dealership, every 4-cylinder Caliente is _____.'];
+		/*Scenario 4 Feedback*/
+		var s4_retv_back = ["You've decided to buy a car called the <u>Caliente</u>.",
+		'The factory produces the Caliente in only three colors: black, <u>silver</u>, or <u>blue</u>.',
+		'The factory makes the Caliente with either a <u>4</u>- or <u>6</u>- cylinder engine.',
+		'The factory does NOT make a 6-cylinder Caliente in <u>blue</u>.',
+		'All <u>Silver</u> 6-cylinder Calientes come with GPS, but no other Calientes have GPS.',
+		'The local dealership has <u>7</u> Calientes on the lot.',
+		'At your local dealership, most of the Calientes have the <u>4</u>-cylinder engine.',
+		'At your local dealership, every 4-cylinder Caliente is <u>black</u>.'];
+		
+		/*Question Randomization Functions*/
+		function randRetvIndex(retv_stim) {
+			var nums = [];
+			for (i=0;i<retv_stim.length;i++) {
+				nums[i] = i;
+			}
+			nums = jsPsych.randomization.repeat(nums,1);
+			return nums;
+		}
+		function randRetv(nums, retv_stim){
+			var stim = [];
+			for (i=0;i<nums.length;i++){
+				stim[i]=retv_stim[nums[i]];
+			}
+			return stim;
+		}
+		
+		/*Construct the Retrieval + Feedback Blocks*/
+		var nums_real;
+		function makeRetv(retv, back) {
+			/*Make Retrival Block*/
+			var retv_block = {
+				type: 'survey-text-table',
+				questions: [function() {
+					nums_real = randRetvIndex(retv);
+					return randRetv(nums_real, retv);}]
+			};
+			var back_block = {
+				type: 'survey-text-table-feedback',
+				questions: [function() {
+					return randRetv(nums_real, back);}]
+			};
+			out = [retv_block, back_block];
+			return out;
+		}
+
+		/*
+		 * Functions and Construction Blocks for the Reread/Retrieval portion of the experiment
+		 * *Review Instructions Text and Block
+		 * *Assign Review Instructions based on Condition
+		 * *Start Time Function and Block
+		 * *Assign Review Loop 
+		 * s1 Review Loop
+		 * s2 Review Loop
+		 * s3 Review Loop
+		 * s4 Review Loop
+		 * 
+		 */
+		
+		/*Review Instructions*/
+		var review_inst_text;
+		var reread_inst = "Now you will review these sentences for <u>5 minutes</u>.<br><br>You will review them in the same format that you studied them in. "+
+		"Please continue cycling through them until the 5 minutes has passed. "+
+		"<br><br>Note: If at any point the screen does not advance after a key press, click the screen and then press again to advance."+
+		"<br><br>Press any key to continue.";
+		var retrieval_inst = "Now you will review these sentences for <u>5 minutes</u>.<br><br>You will be shown sentences with words missing, and you will be asked to recall those words. "+
+		"If there is more than one word missing, please enter both missing words separated by a space.<br><br>After you have submitted your answers, you will be shown the correct answers. "+
+		"Please review the correct answers and then continue.<br><br>You will repeat this exercise for 5 minutes. Please continue reviewing for the entire time."+
+		"<br><br>Press any key to continue";
+		
+		/*Assign instructions and review method for instructions based on condition*/
+		
+		/*Start Loop Time Block*/
+/*		var startTime;
+		var start_review_time = {
+			type: 'call-function',
+			func: function(){
+				startTime = (new Date()).getTime();
+			}
+		};
+		
+		/*Determine which condition for review loop*/
+		if (cb[0] == 1){
+			loopTimeline_s1 = ['<iframe src="expDM1_s1RES.html" name="id" width="900" height="1000" frameborder="0"></iframe>'];
+			review_inst_text1 = reread_inst;
+		} else {
+			loopTimeline_s1 = ['<iframe src="expDM1_s1RET.html" name="id" width="900" height="1000" frameborder="0"></iframe>'];
+			review_inst_text1 = retrieval_inst;
+		}
+		if (cb[1] == 1){
+			loopTimeline_s2 = ['<iframe src="expDM1_s2RES.html" name="id" width="900" height="1000" frameborder="0"></iframe>'];
+			review_inst_text2 = reread_inst;
+		} else {
+			loopTimeline_s2 = ['<iframe src="expDM1_s2RET.html" name="id" width="900" height="1000" frameborder="0"></iframe>'];
+			review_inst_text2 = retrieval_inst;
+		}		
+		if (cb[2] == 1){
+			loopTimeline_s3 = ['<iframe src="expDM1_s3RES.html" name="id" width="900" height="1000" frameborder="0"></iframe>'];
+			review_inst_text3 = reread_inst;
+		} else {
+			loopTimeline_s3 = ['<iframe src="expDM1_s3RET.html" name="id" width="900" height="1000" frameborder="0"></iframe>'];
+			review_inst_text3 = retrieval_inst;
+		}	
+		if (cb[3] == 1){
+			loopTimeline_s4 = ['<iframe src="expDM1_s4RES.html" name="id" width="900" height="1000" frameborder="0"></iframe>'];
+			review_inst_text4 = reread_inst;
+		} else {
+			loopTimeline_s4 = ['<iframe src="expDM1_s4RET.html" name="id" width="900" height="1000" frameborder="0"></iframe>'];
+			review_inst_text4 = retrieval_inst;
+		}
+
+		/*Review Instructions Block*/
+		var review_inst_s1 = {
+			type: "text",
+			text: review_inst_text1
+		};
+		
+		var review_inst_s2 = {
+			type: "text",
+			text: review_inst_text2
+		};
+		
+		var review_inst_s3 = {
+			type: "text",
+			text: review_inst_text3
+		};
+		
+		var review_inst_s4 = {
+			type: "text",
+			text: review_inst_text4
+		};
+		
+		/*Definition of the s1 Reread/Retrieval Loop Block*/
+		var s1_review_loop = {
+			type: 'single-stim',
+			stimuli: loopTimeline_s1,
+    		is_html: true,
+    		timing_response: review_secs*1000,
+    		continue_after_response: false,
+    		};
+		
+		/*Definition of the s2 Reread/Retrieval Loop Block*/
+		var s2_review_loop = {
+			type: 'single-stim',
+			stimuli: loopTimeline_s2,
+    		is_html: true,
+    		timing_response: review_secs*1000,
+    		continue_after_response: false,
+    		};
+		
+		/*Definition of the s3 Reread/Retrieval Loop Block*/
+		var s3_review_loop = {
+			type: 'single-stim',
+			stimuli: loopTimeline_s3,
+    		is_html: true,
+    		timing_response: review_secs*1000,
+    		continue_after_response: false,
+    		};
+		
+		/*Definition of the s4 Reread/Retrieval Loop Block*/
+		var s4_review_loop = {
+			type: 'single-stim',
+			stimuli: loopTimeline_s4,
+    		is_html: true,
+    		timing_response: review_secs*1000,
+    		continue_after_response: false,
+    		};
+		
+		/*
+		 * Final Test Portion
+		 * *Test Instrucitons Block
+		 * *s1 questions and block
+		 * *s2 questions and block
+		 * *s3 questions and block
+		 * *s4 questions and block
+		 * 
+		 */
+		/*Test Instructions*/
+		var test_inst = {
+			type: 'text',
+			text: "Now you will be tested on the information you just learned.<br><br>"+
+			"Please read the questions carefully and respond to the best of your ability. You will key in your amswers.<br><br>"+
+			"Press any key to advance to the test."
+		};
+		
+		/*Scenario 1 Questions*/
+		var scenario1_qs = [['On which route(s) can students BIKE to campus?<hr><br>a. Ash only<br>b. Ash or Birch<br>c. Birch or Canyon<br>d. Ash or Canyon<br>e. Ash or Birch or Canyon'],
+			['On which route(s) can students DRIVE to campus?<hr><br>a. Ash only<br>b. Ash or Birch<br>c. Birch or Canyon<br>d. Ash or Canyon<br>e. Ash or Birch or Canyon'],
+			['Which route(s) do students use when it is HOT?<hr><br>a. Ash only<br>b. Ash or Birch<br>c. Birch or Canyon<br>d. Ash or Canyon<br>e. Ash or Birch or Canyon'],
+			["How might students commute to campus via BIRCH on a RAINY day? (Correct answer should include all possibilites.)<hr><br>a. walk <br>b. bike<br>c. drive<br>d. walk or drive<br>e. none-student don't use Birch on RAINY day"],
+			['Which form(s) of transportation are allowed on all 3 routes?<hr><br>a. walking<br>b. biking<br>c. driving<br>d. walking or driving<br>e. walking and biking'],
+			['How might students commute to campus on a HOT day? (Correct answer should include all possibilites.)<hr><br>a. walk <br>b. bike<br>c. drive<br>d. walk or drive<br>e. bike or drive'],
+			['How might FRESHMEN students commute to campus on a HOT day? (Correct answer should include all possibilites.)<hr><br>a. walk <br>b. bike<br>c. drive<br>d. walk or drive<br>e. bike or drive'],
+			["How might students commute to campus via CANYON on a HOT day? (Correct answer should include all possibilites.)<hr><br>a. bike<br>b. drive<br>c. bike or drive<br>d. walk or drive<br>e. none: students don't use Canyon on hot days"]];
+		scenario1_qs = jsPsych.randomization.repeat(scenario1_qs,1);
+		/*Scenario 1 Questions Block*/
+		var scenario1_questions = {
+			type: 'single-stim',
+			stimuli: scenario1_qs,
+			is_html: true,
+			choices: ['a','b','c','d','e'],
+			prompt: "<br><hr>Please key in your response (<b>a, b, c, d, e</b>)."
+		};
+		
+		/*Scenario 2 Questions*/
+		var scenario2_qs = [['Which one of the following pairs of colors will never be found at the same party?<hr><br>a. Black and Red<br>b. Black and Purple<br>c. Black and Pastel Pink<br>d. Purple and Pastel Pink'],
+			['If there are four nerds present at the party, what is the minimum number of different colored shirts that are being worn at the party?<hr><br>a. 1<br>b. 3<br>c. 5<br>d. 7'],
+			["Susan is wearing a green shirt while at a party with 6 other people, one of them a nerd. Which one of the following statements is true?<hr><br>a. She might be a Loner<br>b. She can't be a Goth.<br>c. She can't be a Nerd.<br>d. She can't be a Prep."],
+			['There is one person wearing a black shirt at the party. How many Preps are there?<hr><br>a. 0<br>b. 1 or more<br>c. 9 or fewer<br>d. any number is possible'],
+			['If there are 12 people at a party, might one of them be wearing a purple shirt?<hr><br>a. Yes<br>b. No <br>c. Maybe<br>'],
+			['If Preps and Loners are hosting a party, which of the following is possible:<hr><br>a. There are 9 people at the party and Goths are present<br>b. There are 11 people at the party and Goths are present<br>c. There are 9 people at the party and Goths are not present<br>d. There are 11 people at the party and Goths are not present'],
+			['If there are 7 people wearing purple shirts at a party, what is the maximum possible number of Preps who can be present?<hr><br>a. 0<br>b. 2<br>c. 3<br>d. There is no maxium '],
+			['There are 3 Nerds present at a party. How many Preps are there?<hr><br>a. 0<br>b. fewer than 3<br>c. fewer than 7<br>d. more than 3']];
+		scenario2_qs = jsPsych.randomization.repeat(scenario2_qs,1);
+		/*Scenario 2 Questions Block*/
+		var scenario2_questions = {
+			type: 'single-stim',
+			stimuli: scenario2_qs,
+			is_html: true,
+			choices: ['a','b','c','d'],
+			prompt: "<br><hr>Please key in your response (<b>a, b, c, d</b>)."
+		};
+				
+		/*Scenario 3 Questions*/
+		var scenario3_qs = [['Are Zippers required to pay the $3,000 surtax each year?<hr><br>a. Definitely Not<br>b. Maybe<br>c. Definitely yes'],
+			['Sherry is a Goopie who earns $10,000 a year. How much is she required to pay in taxes?<hr><br>a. 1000<br>b. 3000<br>c. 4000'],
+			['Robbie is a Goopie who earns $30,000 a year. If he paid $12,000 in taxes, how many years was he employed for?<hr><br>a. 3 years<br>b. 4  years<br>c. 5 years'],
+			['Robbie is a Zipper with one roommate. Can his roommate be another Zipper?<hr><br>a. Definitely Not<br>b. Maybe<br>c. Definitely yes'],
+			['Who pays more taxes, a Goopie who earns $5,000 a year or a Dinko who earns $4,000 a year?<hr><br>a. Greg the Goopie<br>b. Dave the Dinko<br>c. They pay the same amount of tax.'],
+			['If Bebe is 4 feet tall, which of the following is true?<hr><br>a. She must be a Goopie<br>b. She must be a Zipper<br>c. She must be a Goopie or Zipper'],
+			['If Lingo earns $10,000 per year and paid $4,000 in taxes, to what tribe does he belong?<hr><br>a. Zippers<br>b. Groopies<br>c. Dinkos'],
+			['If a Dinko pays $5000 in taxes, what was his earned income that year?<hr><br>a. 30000<br>b. 40000<br>c. 50000']];
+		scenario3_qs = jsPsych.randomization.repeat(scenario3_qs,1);
+		/*Scenario 3 Questions Block*/
+		var scenario3_questions = {
+			type: 'single-stim',
+			stimuli: scenario3_qs,
+			is_html: true,
+			choices: ['a','b','c'],
+			prompt: "<br><hr>Please key in your response (<b>a, b, c</b>)."
+		};
+		
+		/*Scenario 4 Questions*/
+		var scenario4_qs = [['If you see a black Caliente on the lot of the local dealership, how many cylinders does its engine have, and does it have GPS?<hr><br>a. 4 or 6 cylinders, with GPS<br>b. 4 or 6 cylinders, without GPS<br>c. 4 cylinders, without GPS<br>d. 6 cylinders, without GPS<br>e. 6 cylinders, with GPS'],
+			['If you see a silver Caliente on the lot of the local dealership, how many cylinders does its engine have, and does it have GPS?<hr><br>a. 4 or 6 cylinders, with GPS<br>b. 4 or 6 cylinders, without GPS<br>c. 4 cylinders, without GPS<br>d. 6 cylinders, without GPS<br>e. 6 cylinders, with GPS'],
+			['What is the smallest possible number of silver Calientes on the lot?<hr><br>a. 0<br>b. 1<br>c. 2<br>d. 3<br>e. 4'],
+			['If you want to buy a Caliente with GPS TODAY from your local dealership, what color might be available?<hr><br>a. Black only<br>b. Sliver only<br>c. Blue only <br>d. Black or silver<br>e. Black or Silver or Blue'],
+			['If you want to buy a 4-cylinder Caliente TODAY from your local dealership, what color might be available?<hr><br>a. Black only<br>b. Sliver only<br>c. Blue only <br>d. Black or silver<br>e. Black or Silver or Blue'],
+			['If you want to buy a 6-cylinder Caliente TODAY from your local dealership, what color might be available?<hr><br>a. Black only<br>b. Sliver only<br>c. Blue only <br>d. Black or silver<br>e. Black or Silver or Blue'],
+			["How many of the dealership's Calientes are blue?<hr><br>a. 0<br>b. 1<br>c. 2<br>d. 3<br>e. 4"],
+			['What is the smallest possible number of black Calientes on the lot?<hr><br>a. 0<br>b. 1<br>c. 2<br>d. 3<br>e. 4']];
+		scenario4_qs = jsPsych.randomization.repeat(scenario4_qs,1);
+		/*Scenario 4 Questions Block*/
+		var scenario4_questions = {
+			type: 'single-stim',
+			stimuli: scenario4_qs,
+			is_html: true,
+			choices: ['a','b','c','d','e'],
+			prompt: "<br><hr>Please key in your response (<b>a, b, c, d, e</b>)."
+		};		
+		
+		/*
+		 * Final Questions and Last Page
+		 * *Final Questions Instructions Block
+		 * *Final Questions Block
+		 * *Last Page
+		 * 
+		 */
+		/*Final Instructions + Questions*/
+		var final_qs_inst = {
+			type: "text",
+			text: "Thank you for taking the test. You will now be asked some final questions regarding this experiment.<br><br>"+
+			"Please answer these questions <u>honestly</u>. The content of your responses will not affect your payment (although failure to complete the questions will)."+
+			"<br><br>Press any key to continue."
+		};
+		
+		var final_qs = [["Did the study run smoothly?",
+		"Were there any problems with page loading or lag?",
+		"Have you seen these study materials before?",
+		"How fun was this study on a scale from 1-10?"],
+		["Were you paying attention during this study?",
+		"Did you tab away or do anything else during the study?",
+		"Did you write anything down to reference?",
+		"Do you think we should use your data?"]];
+		var final_questions = {
+			type: 'survey-text',
+			questions: final_qs
+		};
+		
+		/*Last Page*/
+		var last_page = {
+			type: 'text',
+			text: "<b>Thank you for your participation!</b><br><p>If you have any questions or concerns, email admin@cognition-learning.org."+
+			"<br><p>Your mTurk confirmation code is on the following page. Press any key to continue.</p>"
+		};
+		
+		/*
+		 * Creat Scenario Chunks
+		 */
+		
+		/*s1 Chunk*/
+		s1_timeline = [];
+		s1_timeline.push(makeScen(s1_stim));
+/*		s1_timeline.push(review_inst_s1);
+		s1_timeline.push(s1_review_loop);
+		s1_timeline.push(test_inst);
+		s1_timeline.push(scenario1_questions);
+		/*s1 chunk*/
+		var s1_chunk = {
+			chunk_type: 'linear',
+			timeline: s1_timeline
+		};
+		
+		/*s2 chunk*/
+		s2_timeline = [];
+		s2_timeline.push(makeScen(s2_stim));
+/*		s2_timeline.push(review_inst_s1);
+		s2_timeline.push(s2_review_loop);
+		s2_timeline.push(test_inst);
+		s2_timeline.push(scenario2_questions);
+		/*s2 Chunk*/
+		var s2_chunk = {
+			chunk_type: 'linear',
+			timeline: s2_timeline
+		};
+		
+		/*s3 chunk*/
+		s3_timeline = [];
+		s3_timeline.push(makeScen(s3_stim));
+/*		s3_timeline.push(review_inst_s3);
+		s3_timeline.push(s3_review_loop);
+		s3_timeline.push(test_inst);
+		s3_timeline.push(scenario3_questions);
+		/*s3 Chunk*/
+		var s3_chunk = {
+			chunk_type: 'linear',
+			timeline: s3_timeline
+		};
+		
+		/*s4 chunk*/
+		s4_timeline = [];
+		s4_timeline.push(makeScen(s4_stim));
+/*		s4_timeline.push(review_inst_s4);
+		s4_timeline.push(s4_review_loop);
+		s4_timeline.push(test_inst);
+		s4_timeline.push(scenario4_questions);
+		/*s4 Chunk*/
+		var s4_chunk = {
+			chunk_type: 'linear',
+			timeline: s4_timeline
+		};
+		
+		/*
+		 * Randomize Chunks
+		 */
+		chunks = [s1_chunk, s2_chunk, s3_chunk, s4_chunk];
+ 
+		/*Create experiment array*/
+		var experiment = [];
+			/*General Introductory Materials*/
+		experiment.push(introduction);
+		experiment.push(conditions);
+		experiment.push(mTurk_ID_block);
+		experiment.push(periodic_save);
+		experiment.push(consent_block);
+		experiment.push(demographics_block);
+		experiment.push(periodic_save);
+		experiment.push(study_inst);
+			/*Scenario A*/
+		experiment.push(chunks[order[0]]);
+		experiment.push(periodic_save);
+			/*Scenario B*/
+		experiment.push(between_inst);
+		experiment.push(chunks[order[1]]);
+		experiment.push(periodic_save);
+			/*Scenario C*/
+		experiment.push(between_inst);
+		experiment.push(chunks[order[2]]);
+		experiment.push(periodic_save);
+			/*Scenario D*/
+		experiment.push(between_inst);
+		experiment.push(chunks[order[3]]);
+		experiment.push(periodic_save);
+			/*Final Questions*/
+		experiment.push(final_qs_inst);
+		experiment.push(final_questions);
+		experiment.push(periodic_save);
+		experiment.push(last_page);
+		
+		/*Save data function*/
+		function saveData(filename, filedata){
+			$.ajax({
+				type:'post',
+				cache: false,
+				url: 'save_data.php',
+				data: {filename: filename, filedata: filedata}
+			});
+		}
+		
+		/*Start the experiment*/
+		jsPsych.init({
+			experiment_structure: experiment,
+			on_finish: function(data) {
+				saveData(id + ".csv", jsPsych.data.dataAsCSV());
+				//jsPsych.data.displayData('csv');
+				document.write("<center><h1>Your mTurk Code is <u>"+code+"</u></h1></center>");
+			}
+		});
+		
+	</script>
+</html>

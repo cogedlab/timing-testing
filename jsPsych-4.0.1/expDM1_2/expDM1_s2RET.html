@@ -1,0 +1,131 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>S2 Retrieval</title>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  		<script src="jspsych.js"></script>
+ 		<script src="plugins/jspsych-text.js"></script>
+ 		<script src="plugins/jspsych-single-stim.js"></script>
+ 		<script src="plugins/jspsych-survey-text-table.js"></script>
+ 		<script src="plugins/jspsych-survey-text.js"></script>
+ 		<script src="plugins/jspsych-call-function.js"></script>
+ 		<script src="plugins/jspsych-survey-text-table-feedback.js"></script>
+ 		<script src="plugins/jspsych-html.js"></script>
+ 		<script src="plugins/jspsych-save-info.js"></script>
+		<link href="css/jspsych.css" rel="stylesheet" type="text/css"/>
+	</head>
+	<body>
+	</body>
+	<script>
+		/*Periodic Save Stuff*/
+		id=window.parent.id_num;
+		var periodic_save = {
+			type: 'call-function',
+			func: function(data){
+				saveData(id + "_s2RET.csv", jsPsych.data.dataAsCSV());
+			}
+		};
+
+		/*
+		 * Retrieval Stimuli and Block Construction
+		 * *s1 Retrieval Stimuli & Feedback
+		 * *s2 Retrieval Stimuli & Feedback
+		 * *s3 Retrieval Stimuli & Feedback
+		 * *s4 Retrieval Stimuli & Feedback
+		 * *Question Randomization Function
+		 * *Retrieval + Feedback Block Creation Function
+		 * 
+		 */
+		
+		/*Scenario 2 Retv Stimuli*/
+		var s2_retv_stim = ['The local school has 4 kinds of kids: Nerds, Preps, _____,and _____.',
+		'If any Preps attend a party, then any _____ who might be present immediately leave.',
+		'If there are _____ or more people at any party, then _____ will not be in attendance.',
+		'At any party, there are more _____ than _____.',
+		'Two _____ never wear the same color shirt.',
+ 	    '_____ always wear all black, and no one else ever does.',
+		'_____ always wear at least one pastel colored item, and no one else ever does.',
+		'_____ always wear a purple shirt, and no one else ever does.'];
+		/*Scenario 2 Feedback*/
+		var s2_retv_back = ['The local school has 4 kinds of kids: Nerds, Preps, <u>Goths</u>,and <u>Loners</u>',
+		'If any Preps attend a party, then any <u>Goths</u> who might be present immediately leave.',
+		'If there are <u>10</u> or more people at any party, then <u>Loners</u> will not be in attendance.',
+		'At any party, there are more <u>Preps</u> than <u>Nerds</u>.',
+		'Two <u>Nerds</u> never wear the same color shirt.',
+		'<u>Goths</u> always wear all black, and no one else ever does.',
+		'<u>Preps</u> always wear at least one pastel colored item, and no one else ever does.',
+		'<u>Loners</u> always wear a purple shirt, and no one else ever does.'];
+				
+		/*Question Randomization Functions*/
+		function randRetvIndex(retv_stim) {
+			var nums = [];
+			for (i=0;i<retv_stim.length;i++) {
+				nums[i] = i;
+			}
+			nums = jsPsych.randomization.repeat(nums,1);
+			return nums;
+		}
+		function randRetv(nums, retv_stim){
+			var stim = [];
+			for (i=0;i<nums.length;i++){
+				stim[i]=retv_stim[nums[i]];
+			}
+			return stim;
+		}
+		
+		/*Construct the Retrieval + Feedback Blocks*/
+		var nums_real;
+		function makeRetv(retv, back) {
+			/*Make Retrival Block*/
+			var retv_block = {
+				type: 'survey-text-table',
+				questions: [function() {
+					nums_real = randRetvIndex(retv);
+					return randRetv(nums_real, retv);}]
+			};
+			var back_block = {
+				type: 'survey-text-table-feedback',
+				questions: [function() {
+					return randRetv(nums_real, back);}]
+			};
+			out = [retv_block, periodic_save, back_block, periodic_save];
+			return out;
+		}
+		
+		loopTimeline_s2 = makeRetv(s2_retv_stim, s2_retv_back);
+		
+		/*Definition of the s1 Reread/Retrieval Loop Block*/
+		var s1_review_loop = {
+			chunk_type: 'while',
+			timeline: loopTimeline_s2,
+			continue_function: function(){
+				return true;
+			}
+		};
+		
+		/*Create experiment array*/
+		var experiment = [];
+		experiment.push(s1_review_loop);
+
+		function saveData(filename, filedata){
+			$.ajax({
+				type:'post',
+				cache: false,
+				url: 'save_data.php',
+				data: {filename: filename, filedata: filedata}
+			});
+		}
+		
+		/*Start the experiment*/
+		jsPsych.init({
+			experiment_structure: experiment,
+			on_finish: function(data) {
+				saveData(code + ".csv", jsPsych.data.dataAsCSV());
+				jsPsych.data.displayData('csv');
+				//document.write("<center><h1>Your mTurk Code is <u>"+code+"</u></h1></center>");
+			}
+		});
+		
+
+	</script>
+</html>

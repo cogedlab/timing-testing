@@ -1,0 +1,343 @@
+<!doctype html>
+<html>
+	<head>
+  		<title>Memory and Reasoning</title>
+  		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  		<script src="jspsych.js"></script>
+ 		<script src="plugins/jspsych-text.js"></script>
+ 		<script src="plugins/jspsych-single-stim.js"></script>
+ 		<script src="plugins/jspsych-survey-text-table.js"></script>
+ 		<script src="plugins/jspsych-survey-text.js"></script>
+ 		<script src="plugins/jspsych-call-function.js"></script>
+ 		<script src="plugins/jspsych-survey-text-table-feedback.js"></script>
+ 		<script src="plugins/jspsych-html.js"></script>
+		<link href="css/jspsych.css" rel="stylesheet" type="text/css"/>
+	</head>
+	<body>
+	</body>
+	<script>
+		/*
+		 * Introduction Portion
+		 * *ID Creation
+		 * *General Study Intro
+		 * *mTurk ID Block
+		 * *Consent Form
+		 * *Demographics
+		 * 
+		 */
+		
+		/*Random number id creation and condition assignment*/
+		var id_num = Math.floor(Math.random()*1000000);
+		var cond_num = Math.round(Math.random());
+		if (cond_num == 1){
+			cond = "RSTD";
+		} else {
+			cond = "RETV";
+		};
+		id = cond + "_" + id_num; //Final ID Number
+		
+		var introduction = {
+			type: 'text',
+			text: "<h2>Welcome to our study!</h2><br>" +
+			"<p>We'll get started in one moment, but please first answer some initial questions. Press any key to continue.</p>"
+		};
+		
+		/*Get Amazon ID*/
+		var mTurk_ID_block = {
+			type: 'survey-text',
+			questions: [["What is your Amazon mTurk user ID?"]]
+		};
+		/*Save Amazon ID*/
+		var save_mTurk_ID = {
+			type: 'call-function',
+			func: function(data){
+				saveData(id + ".csv", jsPsych.data.dataAsCSV());
+			}
+		};
+		
+		/*Consent Functions and Block*/
+		var check_consent = function() {
+			if($('#consent_checkbox').is(':checked')) {
+				return true;
+			} else {
+				alert("If you wish to participate in this study, please check the box labeled 'Check this box to indicate your consent.'");
+				return false;
+			}
+			return false;
+		};
+		var consent_block = {
+			type: 'html',
+			pages: [{url: 'DeductionConsent.html', cont_btn:"start", check_fn: check_consent}]
+		};
+		
+		/*Demographics Block*/
+		var demog_qs = [['What is your age (in years)?',
+		'What is your sex?',
+		'Are you right or left handed?',
+		'What is your race/ethnicity?',
+		'What is your first language?',
+		'At roughly what age did you start speaking English?',
+		'What langauges besides english do you know? (In parenthesis note level of fluency.)'
+		],
+		['What type of device are you using (i.e. MacBook Pro, HP Probook, Lenovo, iPhone, iPad, etc.)',
+		'What Browser are you using? (i.e. Chrome, Firefox, Internet Explorer, Safari)',
+		'What Operating System do you use? (i.e. Windows 7, Apple OS-X, Linux, etc.)',
+		'What kind of internet were you using? (Hardline (Ethernet), Wifi, 4G, etc.)'
+		]];
+		var demographics_block = {
+			type: 'survey-text-table',
+			questions: demog_qs
+		};
+		
+		/*Instructions block*/
+		var study_inst = {
+			type: "text",
+			text: "<p>In this study, you will be shown some sentences. Please try and learn them. You will be tested on your knowledge of them later.</p><br>" + 
+			"<p>Please don't write down any of the information. Your test performance will not affect your compensation.</p>"+
+         	"<br><p>Please do <b>NOT</b> <u>refresh the page</u> or <u>tab away</u> during the study or you <u>will not</u> be compensated.</p><br>" +
+          	"<p>Press any key to begin. This study should take you approximately 10 minutes. You will receive an alphanumeric code at the conclusion of the study to input into mTurk.</p>"
+        };
+
+		/*
+		 * Scenario Stimuli + Block Construction
+		 */
+		/*Scenarios Stimuli*/
+		var s1_stim = ['Students commute from off-campus housing to campus by 3 routes.<br><br>',
+		'On Ash, students may walk, bike, or drive.<br><br>',
+		'On Birch, only walking is allowed.<br><br>',
+		'On Canyon, only biking or walking is allowed.<br><br>',
+		'If it is raining, students do not bike.<br><br>',
+		'If it is hot, students drive to campus or take Birch.<br><br>',
+		'Freshmen are not allowed to have cars.<br><br>'];
+		
+		/*Randomize the premises*/
+		function randPremises(stimuli){
+			//Randomize
+			var stim_proc = jsPsych.randomization.repeat(stimuli,1);
+			var stim_out = [];
+			//Concatenate
+			for (i=0; i<stim_proc.length; i++) {
+				stim_out += stim_proc[i];
+			}
+			return stim_out;
+		};
+		
+		/*Make a scenario block randomly arranged*/
+		function makeScen(premises) {
+			var premises_block = {
+				type: "single-stim",
+				stimuli: function(){return randPremises(premises);},
+				is_html: true,
+				prompt: "<hr>Once you feel that you can remember these sentences, press any key to continue."
+			};
+			return premises_block;
+		}
+		
+		/*
+		 * Retrieval Stimuli and Block Construction
+		 */
+		/*Scenario 1 Retv Stimuli*/
+		var s1_retv_stim = ['Students commute from off-campus housing to campus by any of _____ routes.',
+		'On Ash, students may _____, _____, or _____.',
+		'On Birch, only _____ is allowed.',
+		'On Canyon, only _____ or _____ is allowed',
+		'If it is raining, students do not _____.',
+		'If it is hot, students _____ to campus or take _____.',
+		'Freshmen are not allowed to have _____.'];
+		/*Scenario 1 Feedback*/
+		var s1_retv_back = ['Students commute from off-campus housing to campus by any of <u>_3_</u> routes.',
+		'On Ash, students may <u>walk</u>, <u>bike</u>, or <u>drive</u>.',
+		'On Birch, only <u>walking</u> is allowed.',
+		'On Canyon, only <u>biking</u> or <u>walking</u> is allowed.',
+		'If it is raining, students do not <u>bike</u>.',
+		'If it is hot, students <u>drive</u> to campus or take <u>Birch</u>.',
+		'Freshmen are not allowed to have <u>cars</u>.',];
+		
+		
+		/*Question Randomization Functions*/
+		function randRetvIndex(retv_stim) {
+			var nums = [];
+			for (i=0;i<retv_stim.length;i++) {
+				nums[i] = i;
+			}
+			nums = jsPsych.randomization.repeat(nums,1);
+			return nums;
+		}
+		function randRetv(nums, retv_stim){
+			var stim = [];
+			for (i=0;i<nums.length;i++){
+				stim[i]=retv_stim[nums[i]];
+			}
+			return stim;
+		}
+		
+		/*Construct the Retrieval + Feedback Blocks*/
+		var nums_real;
+		function makeRetv(retv, back) {
+			/*Make Retrival Block*/
+			var retv_block = {
+				type: 'survey-text-table',
+				questions: [function() {
+					nums_real = randRetvIndex(retv);
+					return randRetv(nums_real, retv);}]
+			};
+			var back_block = {
+				type: 'survey-text-table-feedback',
+				questions: [function() {
+					return randRetv(nums_real, back);}]
+			};
+			out = [retv_block, back_block];
+			return out;
+		}
+
+		/*
+		 * Functions and Construction Blocks for the Reread/Retrieval portion of the experiment
+		 */
+		/*Start Loop Time Block*/
+		var startTime;
+		var start_review_time = {
+			type: 'call-function',
+			func: function(){
+				startTime = (new Date()).getTime();
+			}
+		};
+		
+		/*Review Instructions*/
+		var review_inst_text;
+		var reread_inst = "Now you will review these sentences for <u>5 minutes</u>.<br><br>You will review them in the same format that you studied them in. "+
+		"Please continue cycling through them until the 5 minutes has passed."+
+		"<br><br>Press any key to continue.";
+		var retrieval_inst = "Now you will review these sentences for <u>5 minutes</u>.<br><br>You will be shown sentences with words missing, and you will be asked to recall those words. "+
+		"If there is more than one word missing, please enter both missing words separated by a space.<br><br>After you have submitted your answers, you will be shown the correct answers. "+
+		"Please review the correct answers and then continue.<br><br>You will repeat this exercise for 5 minutes. Please continue reviewing for the entire time."+
+		"<br><br>Press any key to continue";
+		
+		/*Assign instructions and review method based on condition*/
+		if (cond_num == 1){
+			loopTimeline = [makeScen(s1_stim)];
+			review_inst_text = reread_inst;
+		} else {
+			loopTimeline = makeRetv(s1_retv_stim, s1_retv_back);
+			review_inst_text = retrieval_inst;
+		}
+		
+		/*Review Instructions Block*/
+		var review_inst = {
+			type: "text",
+			text: review_inst_text
+		};
+				
+		/*Definition of the Reread/Retrieval Block*/
+		var review_loop = {
+			chunk_type: 'while',
+			timeline: loopTimeline,
+			continue_function: function(){
+				var currentTime = (new Date()).getTime();
+				if(currentTime-startTime > 15 * 1000){ //30s * 1000ms
+					return false;
+				} else {
+					return true;
+				}
+			}
+		};
+		
+		/*
+		 * Final Test Portion
+		 */
+		/*Test Instructions*/
+		var test_inst = {
+			type: 'text',
+			text: "Now you will be tested on the information you just learned.<br><br>"+
+			"Please read the questions carefully and respond to the best of your ability. You will key in your amswers.<br><br>"+
+			"Press any key to advance to the test."
+		};
+		
+		/*Scenario 1 Questions*/
+		var scenario1_qs = [['On which route(s) can students BIKE to campus?<hr><br>a. Ash only<br>b. Ash or Birch<br>c. Birch or Canyon<br>d. Ash or Canyon<br>e. Ash or Birch or Canyon'],
+			['On which route(s) can students DRIVE to campus?<hr><br>a. Ash only<br>b. Ash or Birch<br>c. Birch or Canyon<br>d. Ash or Canyon<br>e. Ash or Birch or Canyon'],
+			['Which route(s) do students use when it is HOT?<hr><br>a. Ash only<br>b. Ash or Birch<br>c. Birch or Canyon<br>d. Ash or Canyon<br>e. Ash or Birch or Canyon'],
+			["How might students commute to campus via BIRCH on a RAINY day? (Correct answer should include all possibilites.)<hr><br>a. walk <br>b. bike<br>c. drive<br>d. walk or drive<br>e. none-student don't use Birch on RAINY day"],
+			['Which form(s) of transportation are allowed on all 3 routes?<hr><br>a. walking<br>b. biking<br>c. driving<br>d. walking or driving<br>e. walking and biking'],
+			['How might students commute to campus on a HOT day? (Correct answer should include all possibilites.)<hr><br>a. walk <br>b. bike<br>c. drive<br>d. walk or drive<br>e. bike or drive'],
+			['How might FRESHMEN students commute to campus on a HOT day? (Correct answer should include all possibilites.)<hr><br>a. walk <br>b. bike<br>c. drive<br>d. walk or drive<br>e. bike or drive'],
+			["How might students commute to campus via CANYON on a HOT day? (Correct answer should include all possibilites.)<hr><br>a. bike<br>b. drive<br>c. bike or drive<br>d. walk or drive<br>e. none: students don't use Canyon on hot days"]];
+		
+		var scenario1_questions = {
+			type: 'single-stim',
+			stimuli: scenario1_qs,
+			is_html: true,
+			choices: ['a','b','c','d','e'],
+			prompt: "<br><hr>Please key in your response (<b>a, b, c, d, e</b>)."
+		};
+		
+		/*
+		 * Final Questions and Last Page
+		 */
+		/*Final Instructions + Questions*/
+		var final_qs_inst = {
+			type: "text",
+			text: "Thank you for taking the test. You will now be asked some final questions regarding this experiment.<br><br>"+
+			"Please answer these questions <u>honestly</u>. The content of your responses will not affect your payment (although failure to complete the questions will)."+
+			"<br><br>Press any key to continue."
+		};
+		
+		var final_qs = [["Did the study run smoothly?",
+		"Were there any problems with page loading or lag?",
+		"Have you seen these study materials before?",
+		"How fun was this study on a scale from 1-10?"],
+		["Were you paying attention during this study?",
+		"Did you tab away or do anything else during the study?",
+		"Did you write anything down to reference?",
+		"Do you think we should use your data?"]];
+		var final_questions = {
+			type: 'survey-text',
+			questions: final_qs
+		};
+		
+		/*Last Page*/
+		var last_page = {
+			type: 'text',
+			text: "<b>Thank you for your participation!</b><br><p>If you have any questions or concerns, email admin@cognition-learning.org."+
+			"<br><p>Your mTurk confirmation code is on the following page. Press any key to continue.</p>"
+		};
+		
+				/*Create experiment array*/
+		var experiment = [];
+		experiment.push(introduction);
+		experiment.push(mTurk_ID_block);
+		experiment.push(save_mTurk_ID);
+		experiment.push(consent_block);
+		experiment.push(demographics_block);
+		experiment.push(study_inst);
+		experiment.push(makeScen(s1_stim));
+		experiment.push(review_inst);
+		experiment.push(start_review_time);
+		experiment.push(review_loop);
+		experiment.push(test_inst);
+		experiment.push(scenario1_questions);
+		experiment.push(final_qs_inst);
+		experiment.push(final_questions);
+		experiment.push(last_page);
+		
+		/*Save data function*/
+		function saveData(filename, filedata){
+			$.ajax({
+				type:'post',
+				cache: false,
+				url: 'save_data.php',
+				data: {filename: filename, filedata: filedata}
+			});
+		}
+		
+		/*Start the experiment*/
+		jsPsych.init({
+			experiment_structure: experiment,
+			on_finish: function(data) {
+				saveData(id + ".csv", jsPsych.data.dataAsCSV());
+				jsPsych.data.displayData('json');
+				//document.write("<center><h1>Your mTurk Code is <u>"+id+"</u></h1></center>");
+			}
+		});
+		
+	</script>
+</html>

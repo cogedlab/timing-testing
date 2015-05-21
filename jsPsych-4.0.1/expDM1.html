@@ -585,6 +585,7 @@
 		s1_timeline.push(s1_review_loop);
 		s1_timeline.push(test_inst);
 		s1_timeline.push(scenario1_questions);
+		/*s1 chunk*/
 		var s1_chunk = {
 			chunk_type: 'linear',
 			timeline: s1_timeline
@@ -633,10 +634,6 @@
 		 * Randomize Chunks
 		 */
 		chunks = [s1_chunk, s2_chunk, s3_chunk, s4_chunk];
-		chunks[order[0]] = s1_chunk;
-		chunks[order[1]] = s2_chunk;
-		chunks[order[2]] = s3_chunk;
-		chunks[order[3]] = s4_chunk;
  
 		/*Create experiment array*/
 		var experiment = [];
@@ -650,19 +647,19 @@
 		experiment.push(periodic_save);
 		experiment.push(study_inst);
 			/*Scenario A*/
-		experiment.push(chunks[0]);
+		experiment.push(chunks[order[0]]);
 		experiment.push(periodic_save);
 			/*Scenario B*/
 		experiment.push(between_inst);
-		experiment.push(chunks[1]);
+		experiment.push(chunks[order[1]]);
 		experiment.push(periodic_save);
 			/*Scenario C*/
 		experiment.push(between_inst);
-		experiment.push(chunks[2]);
+		experiment.push(chunks[order[2]]);
 		experiment.push(periodic_save);
 			/*Scenario D*/
 		experiment.push(between_inst);
-		experiment.push(chunks[3]);
+		experiment.push(chunks[order[3]]);
 		experiment.push(periodic_save);
 			/*Final Questions*/
 		experiment.push(final_qs_inst);
