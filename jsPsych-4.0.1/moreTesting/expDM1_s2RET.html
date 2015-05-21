@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<title>S1 Retrieval</title>
+		<title>S2 Retrieval</title>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
   		<script src="jspsych.js"></script>
  		<script src="plugins/jspsych-text.js"></script>
@@ -22,7 +22,7 @@
 		var periodic_save = {
 			type: 'call-function',
 			func: function(data){
-				saveData(id + "_s1RET.csv", jsPsych.data.dataAsCSV());
+				saveData(id + "_s2RET.csv", jsPsych.data.dataAsCSV());
 			}
 		};
 
@@ -37,23 +37,25 @@
 		 * 
 		 */
 		
-		/*Scenario 1 Retv Stimuli*/
-		var s1_retv_stim = ['Students commute from off-campus housing to campus by any of _____ routes.',
-		'On Ash, students may _____, _____, or _____.',
-		'On Birch, only _____ is allowed.',
-		'On Canyon, only _____ or _____ is allowed',
-		'If it is raining, students do not _____.',
-		'If it is hot, students _____ to campus or take _____.',
-		'Freshmen are not allowed to have _____.'];
-		/*Scenario 1 Feedback*/
-		var s1_retv_back = ['Students commute from off-campus housing to campus by any of <u>_3_</u> routes.',
-		'On Ash, students may <u>walk</u>, <u>bike</u>, or <u>drive</u>.',
-		'On Birch, only <u>walking</u> is allowed.',
-		'On Canyon, only <u>biking</u> or <u>walking</u> is allowed.',
-		'If it is raining, students do not <u>bike</u>.',
-		'If it is hot, students <u>drive</u> to campus or take <u>Birch</u>.',
-		'Freshmen are not allowed to have <u>cars</u>.',];
-		
+		/*Scenario 2 Retv Stimuli*/
+		var s2_retv_stim = ['The local school has 4 kinds of kids: Nerds, Preps, _____,and _____.',
+		'If any Preps attend a party, then any _____ who might be present immediately leave.',
+		'If there are _____ or more people at any party, then _____ will not be in attendance.',
+		'At any party, there are more _____ than _____.',
+		'Two _____ never wear the same color shirt.',
+ 	    '_____ always wear all black, and no one else ever does.',
+		'_____ always wear at least one pastel colored item, and no one else ever does.',
+		'_____ always wear a purple shirt, and no one else ever does.'];
+		/*Scenario 2 Feedback*/
+		var s2_retv_back = ['The local school has 4 kinds of kids: Nerds, Preps, <u>Goths</u>,and <u>Loners</u>',
+		'If any Preps attend a party, then any <u>Goths</u> who might be present immediately leave.',
+		'If there are <u>10</u> or more people at any party, then <u>Loners</u> will not be in attendance.',
+		'At any party, there are more <u>Preps</u> than <u>Nerds</u>.',
+		'Two <u>Nerds</u> never wear the same color shirt.',
+		'<u>Goths</u> always wear all black, and no one else ever does.',
+		'<u>Preps</u> always wear at least one pastel colored item, and no one else ever does.',
+		'<u>Loners</u> always wear a purple shirt, and no one else ever does.'];
+				
 		/*Question Randomization Functions*/
 		function randRetvIndex(retv_stim) {
 			var nums = [];
@@ -90,12 +92,12 @@
 			return out;
 		}
 		
-		loopTimeline_s1 = makeRetv(s1_retv_stim, s1_retv_back);
-
+		loopTimeline_s2 = makeRetv(s2_retv_stim, s2_retv_back);
+		
 		/*Definition of the s1 Reread/Retrieval Loop Block*/
 		var s1_review_loop = {
 			chunk_type: 'while',
-			timeline: loopTimeline_s1,
+			timeline: loopTimeline_s2,
 			continue_function: function(){
 				return true;
 			}

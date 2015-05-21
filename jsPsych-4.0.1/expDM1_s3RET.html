@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<title>S1 Retrieval</title>
+		<title>S3 Retrieval</title>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
   		<script src="jspsych.js"></script>
  		<script src="plugins/jspsych-text.js"></script>
@@ -22,7 +22,7 @@
 		var periodic_save = {
 			type: 'call-function',
 			func: function(data){
-				saveData(id + "_s1RET.csv", jsPsych.data.dataAsCSV());
+				saveData(id + "_s3RET.csv", jsPsych.data.dataAsCSV());
 			}
 		};
 
@@ -36,24 +36,26 @@
 		 * *Retrieval + Feedback Block Creation Function
 		 * 
 		 */
-		
-		/*Scenario 1 Retv Stimuli*/
-		var s1_retv_stim = ['Students commute from off-campus housing to campus by any of _____ routes.',
-		'On Ash, students may _____, _____, or _____.',
-		'On Birch, only _____ is allowed.',
-		'On Canyon, only _____ or _____ is allowed',
-		'If it is raining, students do not _____.',
-		'If it is hot, students _____ to campus or take _____.',
-		'Freshmen are not allowed to have _____.'];
-		/*Scenario 1 Feedback*/
-		var s1_retv_back = ['Students commute from off-campus housing to campus by any of <u>_3_</u> routes.',
-		'On Ash, students may <u>walk</u>, <u>bike</u>, or <u>drive</u>.',
-		'On Birch, only <u>walking</u> is allowed.',
-		'On Canyon, only <u>biking</u> or <u>walking</u> is allowed.',
-		'If it is raining, students do not <u>bike</u>.',
-		'If it is hot, students <u>drive</u> to campus or take <u>Birch</u>.',
-		'Freshmen are not allowed to have <u>cars</u>.',];
-		
+				
+		/*Scenario 3 Retv Stimuli*/
+		var s3_retv_stim = ['There are three tribes living in Slugistan--the Zippers, the _____, and the _____.',
+		'All Goopies are about _____ feet tall, give or take a few inches.',
+		'Zippers are between _____ feet and _____ feet tall.',
+		'All Dinkos are _____ feet tall.',
+		'Everyone is required to pay a _____% tax on their income.',
+		'Everyone over _____ feet tall must pay a $3,000 yearly surtax.',
+		'No household can have a combined after-tax earnings exceeding $_____.',
+		'Dinkos pay a $ _____ yearly surtax just for being Dinkos.'];
+		/*Scenario 3 Feedback*/
+		var s3_retv_back = ['There are three tribes living in Slugistan--the Zippers, the <u>Dinkos</u>, and the <u>Goopies</u>.',
+		'All Goopies are <u>about</u> 4 feet tall, give or take a few inches.',
+		'Zippers are between <u>3</u> feet and <u>7</u> feet tall.',
+		'All Dinkos are <u>5</u> feet tall.',
+		'Everyone is required to pay a <u>10</u>% tax on their income.',
+		'Everyone over <u>6</u> feet tall must pay a $3,000 yearly surtax.',
+		'No household can have a combined after-tax earnings exceeding $<u>90,000</u>.',
+		'Dinkos pay a $<u>1,000</u> yearly surtax just for being Dinkos.'];
+				
 		/*Question Randomization Functions*/
 		function randRetvIndex(retv_stim) {
 			var nums = [];
@@ -90,12 +92,12 @@
 			return out;
 		}
 		
-		loopTimeline_s1 = makeRetv(s1_retv_stim, s1_retv_back);
-
+		loopTimeline_s3 = makeRetv(s3_retv_stim, s3_retv_back);
+		
 		/*Definition of the s1 Reread/Retrieval Loop Block*/
-		var s1_review_loop = {
+		var s3_review_loop = {
 			chunk_type: 'while',
-			timeline: loopTimeline_s1,
+			timeline: loopTimeline_s3,
 			continue_function: function(){
 				return true;
 			}
@@ -103,7 +105,7 @@
 		
 		/*Create experiment array*/
 		var experiment = [];
-		experiment.push(s1_review_loop);
+		experiment.push(s3_review_loop);
 
 		function saveData(filename, filedata){
 			$.ajax({

@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<title>S1 Retrieval</title>
+		<title>S4 Retrieval</title>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
   		<script src="jspsych.js"></script>
  		<script src="plugins/jspsych-text.js"></script>
@@ -22,7 +22,7 @@
 		var periodic_save = {
 			type: 'call-function',
 			func: function(data){
-				saveData(id + "_s1RET.csv", jsPsych.data.dataAsCSV());
+				saveData(id + "_s4RET.csv", jsPsych.data.dataAsCSV());
 			}
 		};
 
@@ -36,23 +36,25 @@
 		 * *Retrieval + Feedback Block Creation Function
 		 * 
 		 */
-		
-		/*Scenario 1 Retv Stimuli*/
-		var s1_retv_stim = ['Students commute from off-campus housing to campus by any of _____ routes.',
-		'On Ash, students may _____, _____, or _____.',
-		'On Birch, only _____ is allowed.',
-		'On Canyon, only _____ or _____ is allowed',
-		'If it is raining, students do not _____.',
-		'If it is hot, students _____ to campus or take _____.',
-		'Freshmen are not allowed to have _____.'];
-		/*Scenario 1 Feedback*/
-		var s1_retv_back = ['Students commute from off-campus housing to campus by any of <u>_3_</u> routes.',
-		'On Ash, students may <u>walk</u>, <u>bike</u>, or <u>drive</u>.',
-		'On Birch, only <u>walking</u> is allowed.',
-		'On Canyon, only <u>biking</u> or <u>walking</u> is allowed.',
-		'If it is raining, students do not <u>bike</u>.',
-		'If it is hot, students <u>drive</u> to campus or take <u>Birch</u>.',
-		'Freshmen are not allowed to have <u>cars</u>.',];
+				
+		/*Scenario 4 Retv Stimuli*/
+		var s4_retv_stim = ["You've decided to buy a new car called the _____.",
+		'The factory produces the Caliente in only three colors: black, _____, or _____.',
+		'The factory makes the Caliente with either a _____ or _____ -cylinder engine.',
+		'The factory does NOT make a 6-cylinder Caliente in _____.',
+		'All _____ 6-cylinder Calientes come with GPS, but no other Calientes have GPS.',
+		'The local dealership has _____ Calientes on the lot.',
+		'At your local dealership, most of the Calientes have the _____-cylinder engine.',
+		'At your local dealership, every 4-cylinder Caliente is _____.'];
+		/*Scenario 4 Feedback*/
+		var s4_retv_back = ["You've decided to buy a car called the <u>Caliente</u>.",
+		'The factory produces the Caliente in only three colors: black, <u>silver</u>, or <u>blue</u>.',
+		'The factory makes the Caliente with either a <u>4</u>- or <u>6</u>- cylinder engine.',
+		'The factory does NOT make a 6-cylinder Caliente in <u>blue</u>.',
+		'All <u>Silver</u> 6-cylinder Calientes come with GPS, but no other Calientes have GPS.',
+		'The local dealership has <u>7</u> Calientes on the lot.',
+		'At your local dealership, most of the Calientes have the <u>4</u>-cylinder engine.',
+		'At your local dealership, every 4-cylinder Caliente is <u>black</u>.'];
 		
 		/*Question Randomization Functions*/
 		function randRetvIndex(retv_stim) {
@@ -90,12 +92,12 @@
 			return out;
 		}
 		
-		loopTimeline_s1 = makeRetv(s1_retv_stim, s1_retv_back);
-
+		loopTimeline_s4 = makeRetv(s4_retv_stim, s4_retv_back);
+	
 		/*Definition of the s1 Reread/Retrieval Loop Block*/
-		var s1_review_loop = {
+		var s4_review_loop = {
 			chunk_type: 'while',
-			timeline: loopTimeline_s1,
+			timeline: loopTimeline_s4,
 			continue_function: function(){
 				return true;
 			}
@@ -103,7 +105,7 @@
 		
 		/*Create experiment array*/
 		var experiment = [];
-		experiment.push(s1_review_loop);
+		experiment.push(s4_review_loop);
 
 		function saveData(filename, filedata){
 			$.ajax({
