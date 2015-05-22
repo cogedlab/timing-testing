@@ -30,7 +30,8 @@
 		/*Random number id creation and condition assignment*/
 		var id_num = Math.floor(Math.random()*1000000);
 		var cond_num = Math.round(Math.random());
-		var id_letters = "DED1";
+		var id_letters = "expDM2_ses2";
+		var mturk_id = "DNE";
 		
 		var order = [0,1,2,3];
 		order = jsPsych.randomization.repeat(order,1);
@@ -68,6 +69,16 @@
 		var mTurk_ID_block = {
 			type: 'survey-text',
 			questions: [["What is your Amazon mTurk user ID?"]]
+		};
+		
+		/*Assign mTurk ID to File Name*/
+		var get_mTurk_ID = {
+			type: 'call-function',
+			func: function(){
+				var data = jsPsych.data.getLastTrialData();
+				mturk_id = JSON.parse(data.responses).Q0;
+				id = mturk_id + "_" + id;
+			}
 		};
 		
 		/*Periodic Save Stuff*/
@@ -117,7 +128,7 @@
 			type: "text",
 			text: "<p><b>Welcome Back!</b> Thank you for returning for our follow up study. You will be answering some questions based on what you learned last time.</p>"+
          	"<br><p>Please do <b>NOT</b> <u>refresh the page</u> or <u>tab away</u> during the study or you <u>will not</u> be compensated.</p><br>" +
-          	"<p>This follow up should take you approximately 8 minutes. Please do the study in one sitting (i.e. go all the way through without stopping). You will receive an alphanumeric code at the conclusion of the study to input into mTurk. Press any key to begin.</p>"
+          	"<p>This follow up should take you approximately 8 minutes. Please do the study in one sitting (i.e. go all the way through without stopping). You will receive an mTurk bonus soon after the conclusion of this experiment. Press any key to begin.</p>"
         };
         
         var between_inst = {
@@ -621,6 +632,7 @@
 		var experiment = [];
 			/*General Introductory Materials*/
 		experiment.push(mTurk_ID_block);
+		experiment.push(get_mTurk_ID);
 		experiment.push(periodic_save);
 		experiment.push(study_inst);
 		experiment.push(test_inst);

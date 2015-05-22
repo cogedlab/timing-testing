@@ -30,7 +30,8 @@
 		/*Random number id creation and condition assignment*/
 		var id_num = Math.floor(Math.random()*1000000);
 		var cond_num = Math.round(Math.random());
-		var id_letters = "DED1";
+		var id_letters = "expDM2_ses1";
+		var mturk_id = "DNE";
 		
 		var order = [0,1,2,3];
 		order = jsPsych.randomization.repeat(order,1);
@@ -41,8 +42,8 @@
 		var order_out = "_"+order[0]+order[1]+order[2]+order[3];
 		var cb_out = "_"+cb[order[0]]+cb[order[1]]+cb[order[2]]+cb[order[3]];
 		
-		var id = id_num + "_" + id_letters + order_out + cb_out; //Final ID Number
-		var code = id_letters + "_" + id_num;
+		var code = id_num + "_" + id_letters;
+		var id = code + order_out + cb_out; //Final ID Number
 		
 		var conditions = {
 			type: "save-info",
@@ -67,7 +68,17 @@
 		/*Get Amazon ID*/
 		var mTurk_ID_block = {
 			type: 'survey-text',
-			questions: [["What is your Amazon mTurk user ID?"]]
+			questions: [["What is your Amazon mTurk user ID?"]],
+		};
+		
+		/*Assign mTurk ID to File Name*/
+		var get_mTurk_ID = {
+			type: 'call-function',
+			func: function(){
+				var data = jsPsych.data.getLastTrialData();
+				mturk_id = JSON.parse(data.responses).Q0;
+				id = mturk_id + "_" + id;
+			}
 		};
 		
 		/*Periodic Save Stuff*/
@@ -109,7 +120,10 @@
 		]];
 		var demographics_block = {
 			type: 'survey-text-table',
-			questions: demog_qs
+			questions: demog_qs,
+			on_finish: function(){
+				jsPsych.data.displayData('csv');
+			}
 		};
 		
 		/*Instructions block*/
@@ -119,7 +133,7 @@
 			"<p>Please don't write down any of the information. Your test performance will not affect your compensation.</p>"+
          	"<br><p>Please do <b>NOT</b> <u>refresh the page</u> or <u>tab away</u> during the study or you <u>will not</u> be compensated.</p><br>" +
          	"<p>If the screen does not advance due to button press (at any point during the experiment), click the screen and then press to advance."+
-          	"<br><p>This study should take you approximately 40 minutes. Please do the study in one sitting (i.e. go all the way through without stopping). You will receive an alphanumeric code at the conclusion of the study to input into mTurk. Press any key to begin.</p>"
+          	"<br><p>This study should take you 30 minutes max. Please do the study in one sitting (i.e. go all the way through without stopping). You will receive an alphanumeric code at the conclusion of the study to input into mTurk. Press any key to begin.</p>"
         };
         
         var between_inst = {
@@ -634,6 +648,7 @@
 		experiment.push(introduction);
 		experiment.push(conditions);
 		experiment.push(mTurk_ID_block);
+		experiment.push(get_mTurk_ID);
 		experiment.push(periodic_save);
 		experiment.push(consent_block);
 		experiment.push(demographics_block);
