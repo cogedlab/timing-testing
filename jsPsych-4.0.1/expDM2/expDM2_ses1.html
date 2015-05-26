@@ -52,7 +52,7 @@
 			cb: cb
 		};
 		
-		var review_secs = 5; //Should be 300s
+		var review_secs = 300; //Should be 300s
 		var intro_text;
 		if (review_secs==300) {
 			intro_text="<h2>Welcome to our study!</h2><br>" +
@@ -121,15 +121,12 @@
 		var demographics_block = {
 			type: 'survey-text-table',
 			questions: demog_qs,
-			on_finish: function(){
-				jsPsych.data.displayData('csv');
-			}
 		};
 		
 		/*Instructions block*/
 		var study_inst = {
 			type: "text",
-			text: "<p>In this study, you will be shown some sentences. Please try and learn them. You will be tested on your knowledge of them later. You will be shown 4 independent groups of sentences.</p><br>" + 
+			text: "<p>In this study, you will be shown some sentences. Please try and learn them. You will be tested on your knowledge of them later by making inferences based on their content. You will be shown 4 independent groups of sentences.</p><br>" + 
 			"<p>Please don't write down any of the information. Your test performance will not affect your compensation.</p>"+
          	"<br><p>Please do <b>NOT</b> <u>refresh the page</u> or <u>tab away</u> during the study or you <u>will not</u> be compensated.</p><br>" +
          	"<p>If the screen does not advance due to button press (at any point during the experiment), click the screen and then press to advance."+
@@ -473,7 +470,7 @@
 		var test_inst = {
 			type: 'text',
 			text: "Now you will be tested on the information you just learned.<br><br>"+
-			"Please read the questions carefully and respond to the best of your ability. You will key in your amswers.<br><br>"+
+			"Please read the questions carefully and respond to the best of your ability. You will key in your answers.<br><br>"+
 			"Press any key to advance to the test."
 		};
 		
@@ -563,7 +560,7 @@
 		/*Final Instructions + Questions*/
 		var final_qs_inst = {
 			type: "text",
-			text: "Thank you for taking the test. You will now be asked some final questions regarding this experiment.<br><br>"+
+			text: "Thank you for reviewing this material. You will now be asked some final questions regarding this experiment.<br><br>"+
 			"Please answer these questions <u>honestly</u>. The content of your responses will not affect your payment (although failure to complete the questions will)."+
 			"<br><br>Press any key to continue."
 		};
@@ -585,7 +582,7 @@
 		var last_page = {
 			type: 'text',
 			text: "<b>Thank you for your participation!</b><br><p>If you have any questions or concerns, email admin@cognition-learning.org."+
-			"<br><br>You may be contacted via mTurk to participate in a follow up for bonus payment. If you are, more details will be included then."+
+			"<br><br>You may be contacted via mTurk to <u>participate in a follow up for <b>bonus payment</b></u>. If you are, more details will be included then."+
 			"<br><p>Your mTurk confirmation code is on the following page. Press any key to continue.</p>"
 		};
 		

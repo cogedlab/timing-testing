@@ -89,40 +89,6 @@
 			}
 		};
 		
-		/*Consent Functions and Block*/
-		var check_consent = function() {
-			if($('#consent_checkbox').is(':checked')) {
-				return true;
-			} else {
-				alert("If you wish to participate in this study, please check the box labeled 'Check this box to indicate your consent.'");
-				return false;
-			}
-			return false;
-		};
-		var consent_block = {
-			type: 'html',
-			pages: [{url: 'DeductionConsent.html', cont_btn:"start", check_fn: check_consent}]
-		};
-		
-		/*Demographics Block*/
-		var demog_qs = [['What is your age (in years)?',
-		'What is your sex?',
-		'Are you right or left handed?',
-		'What is your race/ethnicity?',
-		'What is your first language?',
-		'At roughly what age did you start speaking English?',
-		'What langauges besides english do you know? (In parenthesis note level of fluency.)'
-		],
-		['What type of device are you using (i.e. MacBook Pro, HP Probook, Lenovo, iPhone, iPad, etc.)',
-		'What Browser are you using? (i.e. Chrome, Firefox, Internet Explorer, Safari)',
-		'What Operating System do you use? (i.e. Windows 7, Apple OS-X, Linux, etc.)',
-		'What kind of internet were you using? (Hardline (Ethernet), Wifi, 4G, etc.)'
-		]];
-		var demographics_block = {
-			type: 'survey-text-table',
-			questions: demog_qs
-		};
-		
 		/*Instructions block*/
 		var study_inst = {
 			type: "text",
@@ -468,7 +434,7 @@
 		var test_inst = {
 			type: 'text',
 			text: "Now you will begin the test on the information you learned.<br><br>"+
-			"Please read the questions carefully and respond to the best of your ability. You will key in your amswers.<br><br>"+
+			"Please read the questions carefully and respond to the best of your ability. You will key in your answers.<br><br>"+
 			"Press any key to advance to the test."
 		};
 		
@@ -565,11 +531,9 @@
 		
 		var final_qs = [["Did the study run smoothly?",
 		"Were there any problems with page loading or lag?",
-		"Have you seen these study materials before?",
-		"How fun was this study on a scale from 1-10?"],
-		["Were you paying attention during this study?",
+		"Were you paying attention during this study?",
 		"Did you tab away or do anything else during the study?",
-		"Did you write anything down to reference?",
+		"Did you reference any other materials during this study?",
 		"Do you think we should use your data?"]];
 		var final_questions = {
 			type: 'survey-text',
@@ -580,7 +544,7 @@
 		var last_page = {
 			type: 'text',
 			text: "<b>Thank you for your participation!</b><br><p>If you have any questions or concerns, email admin@cognition-learning.org."+
-			"<br><p>Your mTurk confirmation code is on the following page. Press any key to continue.</p>"
+			"<br><p>You will receive a bonus payment via mTurk. Press any key to finish the study.</p>"
 		};
 		
 		/*
@@ -649,6 +613,9 @@
 		experiment.push(chunks[order[3]]);
 		experiment.push(periodic_save);
 			/*Final Questions*/
+		experiment.push(final_qs_inst);
+		experiment.push(final_questions);
+		experiment.push(periodic_save);
 		experiment.push(last_page);
 		
 		/*Save data function*/
